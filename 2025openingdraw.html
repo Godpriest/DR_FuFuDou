@@ -424,7 +424,40 @@
         <!-- 抽獎動畫 -->
         <div id="lottery-animation" class="lottery-animation hidden" style="display: none;">
             <div class="animation-container" id="animation-container">
-                <!-- GIF 動畫會在這裡顯示 -->
+                <!-- 預先放置所有GIF動畫 -->
+                <img id="gif-animation-1" class="lottery-gif" 
+                     src="images/animations/lottery_animation_1.gif" 
+                     alt="抽獎動畫1" 
+                     style="display: none; opacity: 0;">
+                <img id="gif-animation-2" class="lottery-gif" 
+                     src="images/animations/lottery_animation_2.gif" 
+                     alt="抽獎動畫2" 
+                     style="display: none; opacity: 0;">
+                
+                <!-- 獎品圖片容器 -->
+                <div id="prize-container" style="display: none;">
+                    <img id="prize-fishball" class="prize-png" 
+                         src="images/prizes/fishball.png" 
+                         alt="魚丸折價10元" 
+                         style="display: none;">
+                    <img id="prize-hot-soup" class="prize-png" 
+                         src="images/prizes/hot_soup.png" 
+                         alt="熱湯折價10元" 
+                         style="display: none;">
+                    <img id="prize-tea-jelly" class="prize-png" 
+                         src="images/prizes/tea_jelly.png" 
+                         alt="茶凍折價10元" 
+                         style="display: none;">
+                    <img id="prize-shaved-ice" class="prize-png" 
+                         src="images/prizes/shaved_ice.png" 
+                         alt="刨冰折價10元" 
+                         style="display: none;">
+                </div>
+                
+                <!-- 載入指示器 -->
+                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
+                    載入動畫中...
+                </div>
             </div>
         </div>
         
@@ -663,68 +696,104 @@
             const randomAnimation = getRandomAnimationGif();
             console.log('選擇的動畫:', randomAnimation);
             
-            // 檢查圖片是否已預載入
-            const animationSrc = `images/animations/${randomAnimation}`;
-            const prizeSrc = `images/prizes/${lotteryResult.imageFile || 'default_prize.png'}`;
-            console.log('動畫路徑:', animationSrc);
-            console.log('獎品路徑:', prizeSrc);
+            // 隱藏所有動畫元素
+            hideAllAnimationElements();
             
-            // 清空容器並添加新的動畫
-            animationContainer.innerHTML = `
-                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
-                    載入動畫中...
-                </div>
-                <img id="lottery-gif" class="lottery-gif" 
-                     alt="抽獎動畫" 
-                     style="opacity: 1; display: block;"
-                     onload="console.log('GIF載入完成:', this.src); document.getElementById('loading-indicator').style.display='none';"
-                     onerror="console.error('GIF載入失敗:', this.src); handleGifError(this)">
-                <img id="prize-png" class="prize-png" 
-                     alt="${lotteryResult.prize}" 
-                     style="display: none;"
-                     onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
-            `;
+            // 選擇要播放的GIF
+            const selectedGifId = randomAnimation === 'lottery_animation_1.gif' ? 'gif-animation-1' : 'gif-animation-2';
+            const selectedGif = document.getElementById(selectedGifId);
             
-            // 強制播放GIF動畫
-            setTimeout(() => {
-                const gifImg = document.getElementById('lottery-gif');
-                const prizeImg = document.getElementById('prize-png');
-                const loadingIndicator = document.getElementById('loading-indicator');
+            // 選擇對應的獎品圖片
+            const prizeImageId = getPrizeImageId(lotteryResult.imageFile);
+            const selectedPrize = document.getElementById(prizeImageId);
+            
+            console.log('選擇的GIF元素:', selectedGifId);
+            console.log('選擇的獎品元素:', prizeImageId);
+            
+            // 顯示載入指示器
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'block';
+            }
+            
+            // 立即顯示選中的GIF並開始播放
+            if (selectedGif) {
+                selectedGif.style.display = 'block';
+                selectedGif.style.opacity = '1';
                 
-                if (gifImg && loadingIndicator) {
-                    // 強制播放GIF動畫
-                    forceGifPlay(gifImg, animationSrc);
+                // 強制重新載入GIF以確保從頭播放
+                const currentSrc = selectedGif.src;
+                selectedGif.src = '';
+                setTimeout(() => {
+                    selectedGif.src = currentSrc + '?t=' + Date.now();
+                    console.log('GIF開始播放:', currentSrc);
                     
-                    // 使用預載入的獎品圖片
-                    const preloadedPrize = prizeImages.find(img => img.src.includes(prizeSrc));
-                    if (preloadedPrize && prizeImg) {
-                        prizeImg.src = preloadedPrize.src;
-                        console.log('使用預載入獎品圖片:', preloadedPrize.src);
+                    // 隱藏載入指示器
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
                     }
-                    
-                    loadingIndicator.style.display = 'none';
-                    console.log('動畫開始播放:', animationSrc);
-                }
-            }, 100);
+                }, 50);
+            }
             
-            // 5秒時開始獎品淡入放大動畫
+            // 5秒時切換到獎品顯示
             setTimeout(() => {
-                const prizeImg = document.getElementById('prize-png');
-                const gifImg = document.getElementById('lottery-gif');
-                if (prizeImg && gifImg) {
-                    // 隱藏GIF，顯示獎品
-                    gifImg.style.display = 'none';
-                    prizeImg.style.display = 'block';
-                    prizeImg.classList.add('animate');
-                    console.log('5秒：開始顯示獎品動畫');
+                console.log('5秒：切換到獎品顯示');
+                
+                // 隱藏GIF
+                if (selectedGif) {
+                    selectedGif.style.display = 'none';
+                    selectedGif.style.opacity = '0';
                 }
-            }, 5000); // 5秒時開始淡入放大
+                
+                // 顯示獎品並開始動畫
+                if (selectedPrize) {
+                    selectedPrize.style.display = 'block';
+                    selectedPrize.classList.add('animate');
+                    console.log('獎品動畫開始');
+                }
+            }, 5000);
             
             // 6秒後顯示最終結果
             setTimeout(() => {
                 hideLotteryAnimation();
                 displayResult(lotteryResult);
-            }, 6000); // 總動畫時間6秒
+            }, 6000);
+        }
+        
+        // 隱藏所有動畫元素
+        function hideAllAnimationElements() {
+            // 隱藏所有GIF
+            document.getElementById('gif-animation-1').style.display = 'none';
+            document.getElementById('gif-animation-1').style.opacity = '0';
+            document.getElementById('gif-animation-2').style.display = 'none';
+            document.getElementById('gif-animation-2').style.opacity = '0';
+            
+            // 隱藏所有獎品
+            const prizeElements = ['prize-fishball', 'prize-hot-soup', 'prize-tea-jelly', 'prize-shaved-ice'];
+            prizeElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'none';
+                    element.classList.remove('animate');
+                }
+            });
+            
+            // 隱藏載入指示器
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        // 根據獎品檔案名取得對應的DOM元素ID
+        function getPrizeImageId(imageFile) {
+            const prizeMap = {
+                'fishball.png': 'prize-fishball',
+                'hot_soup.png': 'prize-hot-soup',
+                'tea_jelly.png': 'prize-tea-jelly',
+                'shaved_ice.png': 'prize-shaved-ice'
+            };
+            return prizeMap[imageFile] || 'prize-fishball';
         }
         
         // 處理 GIF 載入錯誤
@@ -1017,17 +1086,6 @@
         // 測試GIF動畫函數
         function testGifAnimation() {
             console.log('=== 開始測試GIF動畫 ===');
-            console.log('預載入的動畫圖片數量:', animationImages.length);
-            console.log('預載入的獎品圖片數量:', prizeImages.length);
-            
-            // 顯示所有預載入的圖片
-            animationImages.forEach((img, index) => {
-                console.log(`動畫圖片 ${index + 1}:`, img.src);
-            });
-            
-            prizeImages.forEach((img, index) => {
-                console.log(`獎品圖片 ${index + 1}:`, img.src);
-            });
             
             // 顯示動畫測試
             hideAllSections();
@@ -1037,34 +1095,46 @@
             const randomAnimation = getRandomAnimationGif();
             console.log('測試選擇的動畫:', randomAnimation);
             
-            // 清空容器並添加測試動畫
-            animationContainer.innerHTML = `
-                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
-                    測試載入動畫中...
-                </div>
-                <img id="test-gif" class="lottery-gif" 
-                     alt="測試動畫" 
-                     style="opacity: 1; display: block;"
-                     onload="console.log('測試GIF載入完成:', this.src); document.getElementById('loading-indicator').style.display='none';"
-                     onerror="console.error('測試GIF載入失敗:', this.src);">
-            `;
+            // 隱藏所有動畫元素
+            hideAllAnimationElements();
             
-            // 強制播放GIF動畫
-            setTimeout(() => {
-                const testGif = document.getElementById('test-gif');
-                const loadingIndicator = document.getElementById('loading-indicator');
+            // 選擇要播放的GIF
+            const selectedGifId = randomAnimation === 'lottery_animation_1.gif' ? 'gif-animation-1' : 'gif-animation-2';
+            const selectedGif = document.getElementById(selectedGifId);
+            
+            console.log('測試選擇的GIF元素:', selectedGifId);
+            
+            // 顯示載入指示器
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'block';
+            }
+            
+            // 立即顯示選中的GIF並開始播放
+            if (selectedGif) {
+                selectedGif.style.display = 'block';
+                selectedGif.style.opacity = '1';
                 
-                if (testGif) {
-                    forceGifPlay(testGif, `images/animations/${randomAnimation}`);
+                // 強制重新載入GIF以確保從頭播放
+                const currentSrc = selectedGif.src;
+                selectedGif.src = '';
+                setTimeout(() => {
+                    selectedGif.src = currentSrc + '?t=' + Date.now();
+                    console.log('測試GIF開始播放:', currentSrc);
+                    
+                    // 隱藏載入指示器
                     if (loadingIndicator) {
                         loadingIndicator.style.display = 'none';
                     }
-                    console.log('測試動畫開始播放');
-                }
-            }, 100);
+                }, 50);
+            }
             
             // 10秒後關閉測試
             setTimeout(() => {
+                if (selectedGif) {
+                    selectedGif.style.display = 'none';
+                    selectedGif.style.opacity = '0';
+                }
                 lotteryAnimation.style.display = 'none';
                 console.log('測試動畫結束');
             }, 10000);
