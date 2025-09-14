@@ -359,6 +359,9 @@
             object-fit: contain;
             transition: opacity 0.3s ease;
             max-width: 100vw;
+            display: block;
+            position: relative;
+            z-index: 5;
         }
 
         /* 獎品圖片樣式 */
@@ -666,34 +669,37 @@
                 </div>
                 <img id="lottery-gif" class="lottery-gif" src="${animationSrc}?t=${Date.now()}" 
                      alt="抽獎動畫" 
-                     style="opacity: 0;"
-                     onload="console.log('GIF載入完成:', this.src); this.style.opacity='1'; document.getElementById('loading-indicator').style.display='none';"
+                     style="opacity: 1; display: block;"
+                     onload="console.log('GIF載入完成:', this.src); document.getElementById('loading-indicator').style.display='none';"
                      onerror="console.error('GIF載入失敗:', this.src); handleGifError(this)">
                 <img id="prize-png" class="prize-png" src="${prizeSrc}?t=${Date.now()}" 
                      alt="${lotteryResult.prize}" 
+                     style="display: none;"
                      onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
             `;
             
-            // 強制顯示動畫，不依賴預載入檢查
+            // 強制重新載入GIF確保播放
             setTimeout(() => {
                 const gifImg = document.getElementById('lottery-gif');
                 const loadingIndicator = document.getElementById('loading-indicator');
                 if (gifImg && loadingIndicator) {
-                    gifImg.style.opacity = '1';
+                    // 強制重新載入GIF
+                    forceGifReload(gifImg, animationSrc);
                     loadingIndicator.style.display = 'none';
                     console.log('動畫開始播放:', animationSrc);
-                    console.log('動畫元素:', gifImg);
-                    console.log('動畫樣式:', window.getComputedStyle(gifImg));
-                } else {
-                    console.error('找不到動畫元素或載入指示器');
                 }
-            }, 200);
+            }, 100);
             
             // 5秒時開始獎品淡入放大動畫
             setTimeout(() => {
                 const prizeImg = document.getElementById('prize-png');
-                if (prizeImg) {
+                const gifImg = document.getElementById('lottery-gif');
+                if (prizeImg && gifImg) {
+                    // 隱藏GIF，顯示獎品
+                    gifImg.style.display = 'none';
+                    prizeImg.style.display = 'block';
                     prizeImg.classList.add('animate');
+                    console.log('5秒：開始顯示獎品動畫');
                 }
             }, 5000); // 5秒時開始淡入放大
             
@@ -964,6 +970,18 @@
         function isImagePreloaded(src) {
             return animationImages.some(img => img.src.includes(src)) || 
                    prizeImages.some(img => img.src.includes(src));
+        }
+
+        // 強制重新載入GIF以確保播放
+        function forceGifReload(gifElement, src) {
+            console.log('強制重新載入GIF:', src);
+            // 先暫停GIF
+            gifElement.src = '';
+            // 強制重新載入
+            setTimeout(() => {
+                gifElement.src = src + '?t=' + Date.now();
+                console.log('GIF重新載入完成:', gifElement.src);
+            }, 50);
         }
         
         // 頁面載入完成後初始化
