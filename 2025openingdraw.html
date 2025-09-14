@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #25486e;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -22,15 +22,71 @@
             padding: 20px;
         }
 
-        .lottery-container {
+        /* 載入畫面 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #25486e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            width: 150px;
+            height: 150px;
+            background: url('images/logo_1_white.png') center/contain no-repeat;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* 主容器 - 響應式設計 */
+        .main-container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 40px;
-            max-width: 500px;
             width: 100%;
+            max-width: 500px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
             color: #333;
+            position: relative;
+        }
+
+        /* 桌面版樣式 */
+        @media (min-width: 768px) {
+            .main-container {
+                width: 50vw;
+                max-width: 600px;
+                min-height: 60vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+
+        /* 手機版樣式 */
+        @media (max-width: 767px) {
+            .main-container {
+                width: 90vw;
+                max-width: 400px;
+                padding: 30px 20px;
+                min-height: 70vh;
+            }
         }
 
         .lottery-title {
@@ -40,10 +96,25 @@
             font-weight: bold;
         }
 
+        /* 響應式標題 */
+        @media (max-width: 767px) {
+            .lottery-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+        }
+
         .lottery-subtitle {
             font-size: 16px;
             color: #666;
             margin-bottom: 30px;
+        }
+
+        @media (max-width: 767px) {
+            .lottery-subtitle {
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
         }
 
         .btn {
@@ -248,14 +319,14 @@
             margin: 20px 0;
         }
 
-        /* 抽獎動畫區域 */
+        /* 抽獎動畫區域 - 全螢幕覆蓋 */
         .lottery-animation {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: #25486e;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -267,17 +338,54 @@
         }
 
         .animation-container {
-            width: 300px;
-            height: 300px;
+            width: 100vw;
+            height: 100vh;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 動畫 GIF 樣式 - 1920x1080 比例 */
+        .lottery-gif {
+            width: auto;
+            height: 100vh;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 獎品圖片樣式 */
+        .prize-png {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            opacity: 0;
+            transition: all 1s ease-in-out;
+            z-index: 10;
+        }
+
+        /* 獎品淡入放大動畫 - 1秒內完成 */
+        .prize-png.animate {
+            opacity: 1;
+            width: 90vw;
+            height: auto;
+            max-width: 90vw;
         }
     </style>
 </head>
 <body>
-    <div class="lottery-container">
+    <!-- 載入畫面 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-logo"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
         <h1 class="lottery-title">🎉 福福堂開幕抽獎活動 🎉</h1>
         <p class="lottery-subtitle">福福堂開幕慶祝抽獎活動</p>
         
@@ -343,8 +451,12 @@
         
         // 全域變數
         let currentUser = null;
+        let animationImages = []; // 預載入的動畫圖片
+        let prizeImages = []; // 預載入的獎品圖片
+        let preloadComplete = false; // 預載入完成標記
         
         // DOM 元素
+        const loadingScreen = document.getElementById('loading-screen');
         const loginSection = document.getElementById('login-section');
         const loadingSection = document.getElementById('loading-section');
         const userSection = document.getElementById('user-section');
@@ -529,28 +641,50 @@
             hideAllSections();
             lotteryAnimation.style.display = 'flex';
             
-            // 隨機選擇一個抽獎動畫 GIF (3種通用動畫)
+            // 隨機選擇一個抽獎動畫 GIF (2種動畫)
             const randomAnimation = getRandomAnimationGif();
+            
+            // 檢查圖片是否已預載入
+            const animationSrc = `images/animations/${randomAnimation}`;
+            const prizeSrc = `images/prizes/${lotteryResult.imageFile || 'default_prize.png'}`;
             
             // 清空容器並添加新的動畫
             animationContainer.innerHTML = `
-                <img id="lottery-gif" src="images/animations/${randomAnimation}" 
+                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
+                    載入動畫中...
+                </div>
+                <img id="lottery-gif" class="lottery-gif" src="${animationSrc}" 
                      alt="抽獎動畫" 
-                     style="width: 100%; height: 100%; object-fit: contain;"
+                     style="opacity: 0;"
+                     onload="this.style.opacity='1'; document.getElementById('loading-indicator').style.display='none';"
                      onerror="handleGifError(this)">
-                <img id="prize-png" src="images/prizes/${lotteryResult.imageFile || 'default_prize.png'}" 
+                <img id="prize-png" class="prize-png" src="${prizeSrc}" 
                      alt="${lotteryResult.prize}" 
-                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; object-fit: contain; opacity: 0; transition: opacity 0.5s ease;"
                      onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
             `;
             
-            // 在動畫接近結束時顯示獎品 PNG
+            // 如果圖片已預載入，立即顯示
+            if (isImagePreloaded(animationSrc)) {
+                const gifImg = document.getElementById('lottery-gif');
+                if (gifImg) {
+                    gifImg.style.opacity = '1';
+                    document.getElementById('loading-indicator').style.display = 'none';
+                }
+            }
+            
+            // 5秒時開始獎品淡入放大動畫
             setTimeout(() => {
                 const prizeImg = document.getElementById('prize-png');
                 if (prizeImg) {
-                    prizeImg.style.opacity = '1';
+                    prizeImg.classList.add('animate');
                 }
-            }, 3000); // 假設 GIF 總長度 4 秒，在 3 秒時顯示獎品
+            }, 5000); // 5秒時開始淡入放大
+            
+            // 6秒後顯示最終結果
+            setTimeout(() => {
+                hideLotteryAnimation();
+                displayResult(lotteryResult);
+            }, 6000); // 總動畫時間6秒
         }
         
         // 處理 GIF 載入錯誤
@@ -565,27 +699,19 @@
         
         // 處理獎品圖片載入錯誤
         function handlePrizeImageError(imgElement, prizeName) {
-            console.warn('獎品圖片載入失敗，使用文字顯示');
-            // 用文字替代圖片
-            imgElement.style.display = 'none';
-            const textElement = document.createElement('div');
-            textElement.innerHTML = `
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                            background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 10px; 
-                            font-size: 16px; font-weight: bold; color: #333; text-align: center;
-                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">
-                    ${prizeName}
-                </div>
-            `;
-            imgElement.parentNode.appendChild(textElement);
+            console.warn('獎品圖片載入失敗，跳過動畫直接顯示結果');
+            // 直接跳過動畫，顯示最終結果
+            setTimeout(() => {
+                hideLotteryAnimation();
+                displayResult(window.currentLotteryResult);
+            }, 1000);
         }
         
-        // 隨機選擇抽獎動畫 GIF
+        // 隨機選擇抽獎動畫 GIF (只有2個)
         function getRandomAnimationGif() {
             const animations = [
                 'lottery_animation_1.gif',
-                'lottery_animation_2.gif', 
-                'lottery_animation_3.gif'
+                'lottery_animation_2.gif'
             ];
             
             const randomIndex = Math.floor(Math.random() * animations.length);
@@ -606,7 +732,11 @@
                         <div class="prize-image">
                             <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
                                  alt="${result.prize}" 
-                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                 style="width: 100%; height: 100%; object-fit: contain;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 40px; color: white; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                                ${result.prize.charAt(0)}
+                            </div>
                         </div>
                         <div>${result.prize}</div>
                     </div>
@@ -619,7 +749,11 @@
                         <div class="prize-image">
                             <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
                                  alt="${result.prize}" 
-                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                 style="width: 100%; height: 100%; object-fit: contain;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 40px; color: white; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                                ${result.prize.charAt(0)}
+                            </div>
                         </div>
                         <div>${result.prize}</div>
                     </div>
@@ -666,6 +800,15 @@
                 return;
             }
             
+            // 立即禁用按鈕並顯示抽獎中狀態
+            const submitButton = lotteryForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            const originalButtonClass = submitButton.className;
+            
+            submitButton.disabled = true;
+            submitButton.textContent = '抽獎中...';
+            submitButton.className = 'btn btn-google'; // 使用 Google 按鈕樣式表示載入中
+            
             try {
                 // 先執行抽獎，取得結果
                 const lotteryResult = await performLottery(currentUser.id, currentUser.email, name, phone);
@@ -677,25 +820,154 @@
                     // 根據抽獎結果顯示對應的 GIF 動畫
                     showLotteryAnimationWithResult(lotteryResult);
                     
-                    // 等待動畫播放完成（根據 GIF 長度調整）
-                    await new Promise(resolve => setTimeout(resolve, 4000));
+                    // 等待動畫播放完成（6秒動畫）
+                    await new Promise(resolve => setTimeout(resolve, 6000));
                     
                     // 顯示最終結果
                     hideLotteryAnimation();
                     displayResult(lotteryResult);
                 } else {
+                    // 恢復按鈕狀態
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                    submitButton.className = originalButtonClass;
                     showMessage(lotteryResult.error);
                 }
                 
             } catch (error) {
                 console.error('抽獎流程錯誤:', error);
+                // 恢復按鈕狀態
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+                submitButton.className = originalButtonClass;
                 showMessage('抽獎失敗，請重試');
             }
         });
         
+        // 預載入所有圖片和影片
+        function preloadAllAssets() {
+            console.log('開始預載入所有素材...');
+            
+            // 預載入動畫 GIF (只有2個，1920x1080)
+            const animationUrls = [
+                'images/animations/lottery_animation_1.gif',
+                'images/animations/lottery_animation_2.gif'
+            ];
+            
+            // 預載入獎品圖片 (4個獎品)
+            const prizeUrls = [
+                'images/prizes/fishball.png',
+                'images/prizes/hot_soup.png',
+                'images/prizes/tea_jelly.png',
+                'images/prizes/shaved_ice.png'
+            ];
+
+            // 預載入其他圖片
+            const otherImages = [
+                'images/logo_1_white.png'
+            ];
+            
+            let totalAssets = animationUrls.length + prizeUrls.length + otherImages.length;
+            let loadedAssets = 0;
+            
+            // 載入動畫圖片
+            animationUrls.forEach(url => {
+                const img = new Image();
+                img.onload = () => {
+                    animationImages.push(img);
+                    loadedAssets++;
+                    console.log(`動畫圖片載入完成: ${url} (${loadedAssets}/${totalAssets})`);
+                    checkPreloadComplete();
+                };
+                img.onerror = () => {
+                    loadedAssets++;
+                    console.warn(`動畫圖片載入失敗: ${url} (${loadedAssets}/${totalAssets})`);
+                    checkPreloadComplete();
+                };
+                img.src = url;
+            });
+            
+            // 載入獎品圖片
+            prizeUrls.forEach(url => {
+                const img = new Image();
+                img.onload = () => {
+                    prizeImages.push(img);
+                    loadedAssets++;
+                    console.log(`獎品圖片載入完成: ${url} (${loadedAssets}/${totalAssets})`);
+                    checkPreloadComplete();
+                };
+                img.onerror = () => {
+                    loadedAssets++;
+                    console.warn(`獎品圖片載入失敗: ${url} (${loadedAssets}/${totalAssets})`);
+                    checkPreloadComplete();
+                };
+                img.src = url;
+            });
+
+            // 載入其他圖片
+            otherImages.forEach(url => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedAssets++;
+                    console.log(`其他圖片載入完成: ${url} (${loadedAssets}/${totalAssets})`);
+                    checkPreloadComplete();
+                };
+                img.onerror = () => {
+                    loadedAssets++;
+                    console.warn(`其他圖片載入失敗: ${url} (${loadedAssets}/${totalAssets})`);
+                    checkPreloadComplete();
+                };
+                img.src = url;
+            });
+        }
+
+        // 檢查預載入是否完成
+        function checkPreloadComplete() {
+            const totalAssets = 7; // 2個動畫 + 4個獎品 + 1個logo
+            const loadedAssets = animationImages.length + prizeImages.length + 1; // +1 for logo
+            
+            if (loadedAssets >= totalAssets && !preloadComplete) {
+                preloadComplete = true;
+                console.log('所有素材預載入完成！');
+                hideLoadingScreen();
+            }
+        }
+
+        // 隱藏載入畫面
+        function hideLoadingScreen() {
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500); // 等待淡出動畫完成
+            }, 1000); // 至少顯示1秒載入畫面
+        }
+        
+        // 檢查圖片是否已預載入
+        function isImagePreloaded(src) {
+            return animationImages.some(img => img.src.includes(src)) || 
+                   prizeImages.some(img => img.src.includes(src));
+        }
+        
         // 頁面載入完成後初始化
         window.addEventListener('load', function() {
-            initializeGoogleSignIn();
+            // 立即開始預載入所有素材
+            preloadAllAssets();
+            
+            // 初始化 Google 登入（在預載入完成後）
+            setTimeout(() => {
+                if (preloadComplete) {
+                    initializeGoogleSignIn();
+                } else {
+                    // 如果預載入還沒完成，等待完成後再初始化
+                    const checkInterval = setInterval(() => {
+                        if (preloadComplete) {
+                            initializeGoogleSignIn();
+                            clearInterval(checkInterval);
+                        }
+                    }, 100);
+                }
+            }, 500);
         });
     </script>
 </body>
