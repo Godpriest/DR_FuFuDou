@@ -443,14 +443,14 @@
         <div id="lottery-animation" class="lottery-animation hidden" style="display: none;">
             <div class="animation-container" id="animation-container">
                 <!-- 預先放置所有GIF動畫 -->
-                <img id="gif-animation-1" class="lottery-gif" 
-                     src="images/animations/lottery_animation_1.gif" 
-                     alt="抽獎動畫1" 
-                     style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: contain; z-index: 100;">
-                <img id="gif-animation-2" class="lottery-gif" 
-                     src="images/animations/lottery_animation_2.gif" 
-                     alt="抽獎動畫2" 
-                     style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: contain; z-index: 100;">
+                    <img id="gif-animation-1" class="lottery-gif" 
+                         src="https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif" 
+                         alt="抽獎動畫1" 
+                         style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: contain; z-index: 100;">
+                    <img id="gif-animation-2" class="lottery-gif" 
+                         src="https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif" 
+                         alt="抽獎動畫2" 
+                         style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: contain; z-index: 100;">
                 
                 <!-- 獎品圖片容器 -->
                 <div id="prize-container" style="display: none;">
@@ -718,7 +718,7 @@
             hideAllAnimationElements();
             
             // 選擇要播放的GIF
-            const selectedGifId = randomAnimation === 'lottery_animation_1.gif' ? 'gif-animation-1' : 'gif-animation-2';
+            const selectedGifId = randomAnimation === 'lottery-animation-1.gif' ? 'gif-animation-1' : 'gif-animation-2';
             const selectedGif = document.getElementById(selectedGifId);
             
             // 選擇對應的獎品圖片
@@ -828,11 +828,11 @@
             }, 1000);
         }
         
-        // 隨機選擇抽獎動畫 GIF (只有2個)
+        // 隨機選擇抽獎動畫 GIF (只有2個) - 返回PostImages檔案名
         function getRandomAnimationGif() {
             const animations = [
-                'lottery_animation_1.gif',
-                'lottery_animation_2.gif'
+                'lottery-animation-1.gif',
+                'lottery-animation-2.gif'
             ];
             
             const randomIndex = Math.floor(Math.random() * animations.length);
@@ -969,10 +969,10 @@
         function preloadAllAssets() {
             console.log('開始預載入所有素材...');
             
-            // 預載入動畫 GIF (只有2個，1920x1080)
+            // 預載入動畫 GIF (只有2個，1920x1080) - 使用PostImages
             const animationUrls = [
-                'images/animations/lottery_animation_1.gif',
-                'images/animations/lottery_animation_2.gif'
+                'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif',
+                'https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif'
             ];
             
             // 預載入獎品圖片 (4個獎品)
@@ -1136,7 +1136,7 @@
             hideAllAnimationElements();
             
             // 選擇要播放的GIF
-            const selectedGifId = randomAnimation === 'lottery_animation_1.gif' ? 'gif-animation-1' : 'gif-animation-2';
+            const selectedGifId = randomAnimation === 'lottery-animation-1.gif' ? 'gif-animation-1' : 'gif-animation-2';
             const selectedGif = document.getElementById(selectedGifId);
             
             console.log('測試選擇的GIF元素:', selectedGifId);
@@ -1248,7 +1248,7 @@
             
             // 創建一個新的img元素
             const testImg = document.createElement('img');
-            testImg.src = 'images/animations/lottery_animation_1.gif';
+            testImg.src = 'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif';
             testImg.style.position = 'fixed';
             testImg.style.top = '50%';
             testImg.style.left = '50%';
@@ -1287,8 +1287,8 @@
             console.log('=== 檢查圖片路徑 ===');
             
             const imageUrls = [
-                'images/animations/lottery_animation_1.gif',
-                'images/animations/lottery_animation_2.gif',
+                'images/animations/lottery-animation-1.gif',
+                'images/animations/lottery-animation-2.gif',
                 'images/prizes/fishball.png',
                 'images/prizes/hot_soup.png',
                 'images/prizes/tea_jelly.png',
@@ -1338,8 +1338,8 @@
             console.log('=== 檢查檔案大小和GitHub限制 ===');
             
             const imageUrls = [
-                'images/animations/lottery_animation_1.gif',
-                'images/animations/lottery_animation_2.gif',
+                'images/animations/lottery-animation-1.gif',
+                'images/animations/lottery-animation-2.gif',
                 'images/prizes/fishball.png',
                 'images/prizes/hot_soup.png',
                 'images/prizes/tea_jelly.png',
@@ -1407,11 +1407,11 @@
             const testImages = [
                 {
                     name: 'GitHub Raw',
-                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery_animation_1.gif'
+                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery-animation-1.gif'
                 },
                 {
                     name: 'GitHub Raw (備用)',
-                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/gh-pages/images/animations/lottery_animation_1.gif'
+                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/gh-pages/images/animations/lottery-animation-1.gif'
                 },
                 {
                     name: 'Imgur (示例)',
@@ -1430,7 +1430,7 @@
             console.log('');
             
             // 測試GitHub Raw URL
-            const githubRawUrl = 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery_animation_1.gif';
+            const githubRawUrl = 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery-animation-1.gif';
             console.log('測試GitHub Raw URL:', githubRawUrl);
             
             const testImg = new Image();
