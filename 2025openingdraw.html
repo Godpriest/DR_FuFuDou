@@ -394,6 +394,13 @@
         <div class="loading-logo"></div>
     </div>
 
+    <!-- 測試按鈕 -->
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 10000;">
+        <button onclick="testGifAnimation()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🎬 測試GIF動畫
+        </button>
+    </div>
+
     <!-- 主容器 -->
     <div class="main-container">
         <h1 class="lottery-title">🎉 福福堂開幕抽獎活動 🎉</h1>
@@ -667,24 +674,34 @@
                 <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
                     載入動畫中...
                 </div>
-                <img id="lottery-gif" class="lottery-gif" src="${animationSrc}?t=${Date.now()}" 
+                <img id="lottery-gif" class="lottery-gif" 
                      alt="抽獎動畫" 
                      style="opacity: 1; display: block;"
                      onload="console.log('GIF載入完成:', this.src); document.getElementById('loading-indicator').style.display='none';"
                      onerror="console.error('GIF載入失敗:', this.src); handleGifError(this)">
-                <img id="prize-png" class="prize-png" src="${prizeSrc}?t=${Date.now()}" 
+                <img id="prize-png" class="prize-png" 
                      alt="${lotteryResult.prize}" 
                      style="display: none;"
                      onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
             `;
             
-            // 強制重新載入GIF確保播放
+            // 使用預載入的GIF圖片
             setTimeout(() => {
                 const gifImg = document.getElementById('lottery-gif');
+                const prizeImg = document.getElementById('prize-png');
                 const loadingIndicator = document.getElementById('loading-indicator');
+                
                 if (gifImg && loadingIndicator) {
-                    // 強制重新載入GIF
-                    forceGifReload(gifImg, animationSrc);
+                    // 使用預載入的GIF圖片
+                    usePreloadedGif(gifImg, animationSrc);
+                    
+                    // 使用預載入的獎品圖片
+                    const preloadedPrize = prizeImages.find(img => img.src.includes(prizeSrc));
+                    if (preloadedPrize && prizeImg) {
+                        prizeImg.src = preloadedPrize.src;
+                        console.log('使用預載入獎品圖片:', preloadedPrize.src);
+                    }
+                    
                     loadingIndicator.style.display = 'none';
                     console.log('動畫開始播放:', animationSrc);
                 }
@@ -972,16 +989,74 @@
                    prizeImages.some(img => img.src.includes(src));
         }
 
-        // 強制重新載入GIF以確保播放
-        function forceGifReload(gifElement, src) {
-            console.log('強制重新載入GIF:', src);
-            // 先暫停GIF
-            gifElement.src = '';
-            // 強制重新載入
+        // 使用預載入的GIF圖片
+        function usePreloadedGif(gifElement, src) {
+            console.log('使用預載入GIF:', src);
+            // 找到預載入的圖片
+            const preloadedImg = animationImages.find(img => img.src.includes(src));
+            if (preloadedImg) {
+                gifElement.src = preloadedImg.src;
+                console.log('使用預載入圖片:', preloadedImg.src);
+            } else {
+                gifElement.src = src;
+                console.log('使用原始路徑:', src);
+            }
+        }
+
+        // 測試GIF動畫函數
+        function testGifAnimation() {
+            console.log('=== 開始測試GIF動畫 ===');
+            console.log('預載入的動畫圖片數量:', animationImages.length);
+            console.log('預載入的獎品圖片數量:', prizeImages.length);
+            
+            // 顯示所有預載入的圖片
+            animationImages.forEach((img, index) => {
+                console.log(`動畫圖片 ${index + 1}:`, img.src);
+            });
+            
+            prizeImages.forEach((img, index) => {
+                console.log(`獎品圖片 ${index + 1}:`, img.src);
+            });
+            
+            // 顯示動畫測試
+            hideAllSections();
+            lotteryAnimation.style.display = 'flex';
+            
+            // 隨機選擇一個動畫
+            const randomAnimation = getRandomAnimationGif();
+            console.log('測試選擇的動畫:', randomAnimation);
+            
+            // 清空容器並添加測試動畫
+            animationContainer.innerHTML = `
+                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
+                    測試載入動畫中...
+                </div>
+                <img id="test-gif" class="lottery-gif" 
+                     alt="測試動畫" 
+                     style="opacity: 1; display: block;"
+                     onload="console.log('測試GIF載入完成:', this.src); document.getElementById('loading-indicator').style.display='none';"
+                     onerror="console.error('測試GIF載入失敗:', this.src);">
+            `;
+            
+            // 使用預載入的圖片
             setTimeout(() => {
-                gifElement.src = src + '?t=' + Date.now();
-                console.log('GIF重新載入完成:', gifElement.src);
-            }, 50);
+                const testGif = document.getElementById('test-gif');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                
+                if (testGif) {
+                    usePreloadedGif(testGif, `images/animations/${randomAnimation}`);
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                    console.log('測試動畫開始播放');
+                }
+            }, 100);
+            
+            // 10秒後關閉測試
+            setTimeout(() => {
+                lotteryAnimation.style.display = 'none';
+                console.log('測試動畫結束');
+            }, 10000);
         }
         
         // 頁面載入完成後初始化
