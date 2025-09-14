@@ -163,6 +163,27 @@
             font-weight: bold;
             margin: 20px 0;
             box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prize-image {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
 
         .loading {
@@ -232,6 +253,67 @@
         #google-signin-container {
             margin: 20px 0;
         }
+
+        /* 抽獎動畫區域 */
+        .lottery-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .lottery-wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0deg 60deg,
+                #4ecdc4 60deg 120deg,
+                #45b7d1 120deg 180deg,
+                #96ceb4 180deg 240deg,
+                #ffeaa7 240deg 300deg,
+                #dda0dd 300deg 360deg
+            );
+            position: relative;
+            animation: spin 2s linear infinite;
+        }
+
+        .lottery-wheel::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .lottery-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff6b6b;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -251,6 +333,13 @@
             <div class="loading">
                 <div class="spinner"></div>
                 <p>處理中...</p>
+            </div>
+        </div>
+        
+        <!-- 抽獎動畫 -->
+        <div id="lottery-animation" class="lottery-animation hidden">
+            <div class="lottery-wheel">
+                <div class="lottery-pointer"></div>
             </div>
         </div>
         
@@ -305,6 +394,7 @@
         const resultContent = document.getElementById('result-content');
         const lotteryForm = document.getElementById('lottery-form');
         const googleSigninContainer = document.getElementById('google-signin-container');
+        const lotteryAnimation = document.getElementById('lottery-animation');
         
         // 處理 Google 登入回應
         function handleCredentialResponse(response) {
@@ -393,6 +483,7 @@
             userSection.classList.add('hidden');
             resultSection.classList.add('hidden');
             loadingSection.classList.add('hidden');
+            lotteryAnimation.classList.add('hidden');
         }
         
         // 顯示訊息
@@ -472,18 +563,115 @@
             }
         }
         
+        // 顯示抽獎動畫
+        function showLotteryAnimation() {
+            hideAllSections();
+            lotteryAnimation.classList.remove('hidden');
+        }
+        
+        // 顯示抽獎動畫和結果
+        function showLotteryAnimationWithResult(lotteryResult) {
+            hideAllSections();
+            lotteryAnimation.classList.remove('hidden');
+            
+            // 隨機選擇一個抽獎動畫 GIF (3種通用動畫)
+            const randomAnimation = getRandomAnimationGif();
+            
+            // 更新動畫區域
+            const lotteryWheel = lotteryAnimation.querySelector('.lottery-wheel');
+            lotteryWheel.innerHTML = `
+                <div class="lottery-pointer"></div>
+                <div id="animation-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;">
+                    <img id="lottery-gif" src="images/animations/${randomAnimation}" 
+                         alt="抽獎動畫" 
+                         style="width: 100%; height: 100%; object-fit: contain;"
+                         onerror="handleGifError(this)">
+                    <img id="prize-png" src="images/prizes/${lotteryResult.imageFile || 'default_prize.png'}" 
+                         alt="${lotteryResult.prize}" 
+                         style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; object-fit: contain; opacity: 0; transition: opacity 0.5s ease;"
+                         onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
+                </div>
+            `;
+            
+            // 在動畫接近結束時顯示獎品 PNG
+            setTimeout(() => {
+                const prizeImg = document.getElementById('prize-png');
+                if (prizeImg) {
+                    prizeImg.style.opacity = '1';
+                }
+            }, 3000); // 假設 GIF 總長度 4 秒，在 3 秒時顯示獎品
+        }
+        
+        // 處理 GIF 載入錯誤
+        function handleGifError(imgElement) {
+            console.warn('GIF 動畫載入失敗，跳過動畫直接顯示結果');
+            // 隱藏動畫，直接顯示結果
+            setTimeout(() => {
+                hideLotteryAnimation();
+                displayResult(window.currentLotteryResult);
+            }, 1000); // 1秒後直接顯示結果
+        }
+        
+        // 處理獎品圖片載入錯誤
+        function handlePrizeImageError(imgElement, prizeName) {
+            console.warn('獎品圖片載入失敗，使用文字顯示');
+            // 用文字替代圖片
+            imgElement.style.display = 'none';
+            const textElement = document.createElement('div');
+            textElement.innerHTML = `
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                            background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 10px; 
+                            font-size: 16px; font-weight: bold; color: #333; text-align: center;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">
+                    ${prizeName}
+                </div>
+            `;
+            imgElement.parentNode.appendChild(textElement);
+        }
+        
+        // 隨機選擇抽獎動畫 GIF
+        function getRandomAnimationGif() {
+            const animations = [
+                'lottery_animation_1.gif',
+                'lottery_animation_2.gif', 
+                'lottery_animation_3.gif'
+            ];
+            
+            const randomIndex = Math.floor(Math.random() * animations.length);
+            return animations[randomIndex];
+        }
+        
+        // 隱藏抽獎動畫
+        function hideLotteryAnimation() {
+            lotteryAnimation.classList.add('hidden');
+        }
+        
         // 顯示抽獎結果
         function displayResult(result) {
             if (result.alreadyWon) {
                 resultContent.innerHTML = `
                     <h2>🎉 恭喜您！</h2>
-                    <div class="prize-display">${result.prize}</div>
+                    <div class="prize-display">
+                        <div class="prize-image">
+                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                                 alt="${result.prize}" 
+                                 style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div>${result.prize}</div>
+                    </div>
                     <p>您之前已經中獎了！請聯繫我們領取獎品。</p>
                 `;
             } else {
                 resultContent.innerHTML = `
                     <h2>🎉 恭喜您中獎！</h2>
-                    <div class="prize-display">${result.prize}</div>
+                    <div class="prize-display">
+                        <div class="prize-image">
+                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                                 alt="${result.prize}" 
+                                 style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div>${result.prize}</div>
+                    </div>
                     <p>請聯繫我們領取獎品，祝賀您！</p>
                 `;
             }
@@ -527,25 +715,30 @@
                 return;
             }
             
-            showLoading();
-            
             try {
+                // 先執行抽獎，取得結果
                 const lotteryResult = await performLottery(currentUser.id, currentUser.email, name, phone);
                 
-                hideLoading();
-                
                 if (lotteryResult.success) {
+                    // 保存抽獎結果到全域變數（供錯誤處理使用）
+                    window.currentLotteryResult = lotteryResult;
+                    
+                    // 根據抽獎結果顯示對應的 GIF 動畫
+                    showLotteryAnimationWithResult(lotteryResult);
+                    
+                    // 等待動畫播放完成（根據 GIF 長度調整）
+                    await new Promise(resolve => setTimeout(resolve, 4000));
+                    
+                    // 顯示最終結果
+                    hideLotteryAnimation();
                     displayResult(lotteryResult);
                 } else {
                     showMessage(lotteryResult.error);
-                    userSection.classList.remove('hidden');
                 }
                 
             } catch (error) {
                 console.error('抽獎流程錯誤:', error);
                 showMessage('抽獎失敗，請重試');
-                hideLoading();
-                userSection.classList.remove('hidden');
             }
         });
         
