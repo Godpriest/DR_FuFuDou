@@ -441,56 +441,48 @@
         // 頁面載入時檢查 URL 參數
         window.addEventListener('load', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const state = urlParams.get('state');
+            const userParam = urlParams.get('user');
+            const errorParam = urlParams.get('error');
             
-            if (code && state === 'lottery') {
-                // 處理 Google OAuth 回調
-                handleOAuthCallback(code);
+            if (userParam) {
+                // 處理從 Apps Script 重定向回來的用戶資訊
+                handleUserRedirect(userParam);
+            } else if (errorParam) {
+                // 處理錯誤
+                showMessage(decodeURIComponent(errorParam));
+                hideAllSections();
+                loginSection.classList.remove('hidden');
             }
         });
         
-        // 處理 OAuth 回調
-        async function handleOAuthCallback(code) {
+        // 處理用戶重定向
+        async function handleUserRedirect(userParam) {
             showLoading();
             
             try {
-                const params = new URLSearchParams({
-                    action: 'handleCallback',
-                    code: code,
-                    state: 'lottery'
-                });
+                const userData = JSON.parse(decodeURIComponent(userParam));
+                currentUser = userData;
                 
-                const response = await fetch(`${APPS_SCRIPT_URL}?${params}`);
-                const result = await response.json();
+                displayUserInfo(currentUser);
+                
+                // 檢查用戶是否已經參與過抽獎
+                const statusResult = await checkUserStatus(currentUser.id, currentUser.email);
                 
                 hideLoading();
                 
-                if (result.success) {
-                    currentUser = result.user;
-                    displayUserInfo(currentUser);
-                    
-                    // 檢查用戶是否已經參與過抽獎
-                    const statusResult = await checkUserStatus(currentUser.id, currentUser.email);
-                    
-                    if (statusResult.success && statusResult.hasParticipated && statusResult.alreadyWon) {
-                        displayResult(statusResult);
-                    } else {
-                        hideAllSections();
-                        userSection.classList.remove('hidden');
-                    }
-                    
-                    // 清除 URL 參數
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                if (statusResult.success && statusResult.hasParticipated && statusResult.alreadyWon) {
+                    displayResult(statusResult);
                 } else {
-                    showMessage('Google 登入失敗: ' + result.error);
                     hideAllSections();
-                    loginSection.classList.remove('hidden');
+                    userSection.classList.remove('hidden');
                 }
                 
+                // 清除 URL 參數
+                window.history.replaceState({}, document.title, window.location.pathname);
+                
             } catch (error) {
-                console.error('OAuth 回調錯誤:', error);
-                showMessage('登入處理失敗，請重試');
+                console.error('處理用戶資訊錯誤:', error);
+                showMessage('用戶資訊處理失敗，請重新登入');
                 hideLoading();
                 hideAllSections();
                 loginSection.classList.remove('hidden');
