@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福福堂FuFuDou|開幕抽獎</title>
+    
+    <!-- 引用導航欄和底部區塊樣式 -->
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="footer.css">
+    
+    <!-- 頁面特有樣式 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+            background-color: #25486e;
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 頁面內容樣式 */
+        .page-content {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: calc(100vh - 320px); /* 減去導航列和底部區塊的高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lottery-container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .lottery-container h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .lottery-container p {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #f0f0f0;
+        }
+
+        .coming-soon {
+            font-size: 18px;
+            color: #ccc;
+            font-style: italic;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .lottery-container {
+                padding: 40px 20px;
+                margin: 20px;
+            }
+            
+            .lottery-container h1 {
+                font-size: 36px;
+            }
+            
+            .lottery-container p {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 導航欄容器 -->
+    <div id="navigation-container"></div>
+    
+    <!-- 頁面內容 -->
+    <div class="page-content">
+        <div class="lottery-container">
+            <h1>🎉 開幕抽獎活動 🎉</h1>
+            <p>福福堂開幕慶祝抽獎活動</p>
+            <div class="coming-soon">
+                敬請期待...
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部區塊容器 -->
+    <div id="footer-container"></div>
+    
+    <!-- 引用JavaScript -->
+    <script src="navigation.js"></script>
+    <script src="footer.js"></script>
+</body>
+</html>

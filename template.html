@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頁面模板 - 測試組件系統</title>
+    
+    <!-- 引用導航欄和底部區塊樣式 -->
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="footer.css">
+    
+    <!-- 頁面特有的樣式 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 頁面內容樣式 */
+        .page-content {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-content h1 {
+            color: #25486e;
+            margin-bottom: 20px;
+        }
+
+        .page-content p {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 導航欄容器 -->
+    <div id="navigation-container"></div>
+    
+    <!-- 頁面內容 -->
+    <div class="page-content">
+        <h1>這是頁面內容</h1>
+        <p>這裡是頁面的主要內容區域。</p>
+        <p>導航欄和底部區塊會自動載入。</p>
+    </div>
+    
+    <!-- 底部區塊容器 -->
+    <div id="footer-container"></div>
+    
+    <!-- 引用JavaScript -->
+    <script src="navigation.js"></script>
+    <script src="footer.js"></script>
+</body>
+</html>
