@@ -64,6 +64,166 @@
             font-style: italic;
         }
 
+        /* 抽獎功能樣式 */
+        .lottery-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #333;
+            margin-top: 30px;
+        }
+
+        .login-status {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .google-login-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .google-login-btn:hover {
+            background: #357ae8;
+        }
+
+        .google-login-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .user-form-container {
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        .user-form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: #c0392b;
+        }
+
+        .lottery-result {
+            margin-top: 30px;
+        }
+
+        .result-content {
+            text-align: center;
+        }
+
+        .result-content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .prize-display {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .result-content p {
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .play-again-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .play-again-btn:hover {
+            background: #229954;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* 響應式設計 */
         @media (max-width: 768px) {
             .lottery-container {
@@ -90,8 +250,53 @@
         <div class="lottery-container">
             <h1>🎉 開幕抽獎活動 🎉</h1>
             <p>福福堂開幕慶祝抽獎活動</p>
-            <div class="coming-soon">
-                敬請期待...
+            
+            <!-- 抽獎功能區域 -->
+            <div class="lottery-content">
+                <!-- 登入狀態顯示 -->
+                <div id="login-status" class="login-status">
+                    <p>請先登入 Google 帳號參與抽獎</p>
+                </div>
+                
+                <!-- Google 登入按鈕 -->
+                <div id="google-login-container" class="google-login-container">
+                    <button id="google-login-btn" class="google-login-btn">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                        使用 Google 帳號登入
+                    </button>
+                </div>
+                
+                <!-- 用戶資訊表單 -->
+                <div id="user-form-container" class="user-form-container" style="display: none;">
+                    <h3>請填寫您的資料</h3>
+                    <form id="user-form">
+                        <div class="form-group">
+                            <label for="user-name">姓名：</label>
+                            <input type="text" id="user-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-phone">電話號碼：</label>
+                            <input type="tel" id="user-phone" name="phone" required>
+                        </div>
+                        <button type="submit" class="submit-btn">開始抽獎</button>
+                    </form>
+                </div>
+                
+                <!-- 抽獎結果 -->
+                <div id="lottery-result" class="lottery-result" style="display: none;">
+                    <div class="result-content">
+                        <h2 id="result-title"></h2>
+                        <div id="result-prize" class="prize-display"></div>
+                        <p id="result-message"></p>
+                        <button id="play-again-btn" class="play-again-btn" style="display: none;">再抽一次</button>
+                    </div>
+                </div>
+                
+                <!-- 載入動畫 -->
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>抽獎中...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -99,8 +304,213 @@
     <!-- 底部區塊容器 -->
     <div id="footer-container"></div>
     
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <!-- 引用JavaScript -->
     <script src="navigation.js"></script>
     <script src="footer.js"></script>
+    
+    <script>
+        // 配置資訊
+        const GOOGLE_CLIENT_ID = '640378175905-6e5f6beae5v8a9i8747795mjpgcmipln.apps.googleusercontent.com';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwD-a-7F-Oah0IKt4MfcTbTa0FS2pqWrS573XWOtCG3NrOOMd0UB5llHSuxmA6x-cLjvg/exec';
+        
+        // 全域變數
+        let currentUser = null;
+        
+        // DOM 元素
+        const loginStatus = document.getElementById('login-status');
+        const googleLoginContainer = document.getElementById('google-login-container');
+        const userFormContainer = document.getElementById('user-form-container');
+        const lotteryResult = document.getElementById('lottery-result');
+        const loading = document.getElementById('loading');
+        const userForm = document.getElementById('user-form');
+        
+        // 初始化 Google Identity Services
+        function initializeGoogleSignIn() {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: false
+            });
+            
+            // 渲染登入按鈕
+            google.accounts.id.renderButton(
+                document.getElementById('google-login-btn'),
+                {
+                    theme: 'outline',
+                    size: 'large',
+                    width: '100%',
+                    text: 'continue_with',
+                    shape: 'rectangular'
+                }
+            );
+        }
+        
+        // 處理 Google 登入回應
+        function handleCredentialResponse(response) {
+            console.log('Google 登入成功:', response);
+            
+            // 解碼 JWT token 取得用戶資訊
+            const responsePayload = decodeJwtResponse(response.credential);
+            currentUser = {
+                id: responsePayload.sub,
+                email: responsePayload.email,
+                name: responsePayload.name,
+                picture: responsePayload.picture
+            };
+            
+            // 更新 UI
+            updateLoginStatus();
+            showUserForm();
+        }
+        
+        // 解碼 JWT 回應
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            
+            return JSON.parse(jsonPayload);
+        }
+        
+        // 更新登入狀態顯示
+        function updateLoginStatus() {
+            if (currentUser) {
+                loginStatus.innerHTML = `
+                    <p>歡迎，${currentUser.name}！</p>
+                    <p style="font-size: 14px; color: #888;">${currentUser.email}</p>
+                `;
+                googleLoginContainer.style.display = 'none';
+            } else {
+                loginStatus.innerHTML = '<p>請先登入 Google 帳號參與抽獎</p>';
+                googleLoginContainer.style.display = 'block';
+            }
+        }
+        
+        // 顯示用戶表單
+        function showUserForm() {
+            userFormContainer.style.display = 'block';
+            lotteryResult.style.display = 'none';
+        }
+        
+        // 顯示載入狀態
+        function showLoading() {
+            loading.style.display = 'block';
+            userFormContainer.style.display = 'none';
+            lotteryResult.style.display = 'none';
+        }
+        
+        // 隱藏載入狀態
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+        
+        // 顯示抽獎結果
+        function showLotteryResult(title, prize, message, showPlayAgain = false) {
+            document.getElementById('result-title').textContent = title;
+            document.getElementById('result-prize').textContent = prize;
+            document.getElementById('result-message').textContent = message;
+            
+            const playAgainBtn = document.getElementById('play-again-btn');
+            playAgainBtn.style.display = showPlayAgain ? 'block' : 'none';
+            
+            lotteryResult.style.display = 'block';
+            hideLoading();
+        }
+        
+        // 處理表單提交
+        userForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('請先登入 Google 帳號');
+                return;
+            }
+            
+            const formData = new FormData(userForm);
+            const name = formData.get('name');
+            const phone = formData.get('phone');
+            
+            if (!name || !phone) {
+                alert('請填寫完整資料');
+                return;
+            }
+            
+            // 顯示載入狀態
+            showLoading();
+            
+            try {
+                // 呼叫 Apps Script 執行抽獎
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'performDraw',
+                        userId: currentUser.id,
+                        email: currentUser.email,
+                        name: name,
+                        phone: phone
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.alreadyWon) {
+                        showLotteryResult(
+                            '🎉 恭喜您！',
+                            result.prize,
+                            '您之前已經中獎了！請聯繫我們領取獎品。'
+                        );
+                    } else {
+                        showLotteryResult(
+                            '🎉 恭喜您中獎！',
+                            result.prize,
+                            '請聯繫我們領取獎品，祝賀您！'
+                        );
+                    }
+                } else {
+                    showLotteryResult(
+                        '抽獎失敗',
+                        '',
+                        result.error || '抽獎時發生錯誤，請稍後再試。',
+                        true
+                    );
+                }
+            } catch (error) {
+                console.error('抽獎錯誤:', error);
+                showLotteryResult(
+                    '系統錯誤',
+                    '',
+                    '網路連線錯誤，請檢查網路後再試。',
+                    true
+                );
+            }
+        });
+        
+        // 再抽一次按鈕
+        document.getElementById('play-again-btn').addEventListener('click', function() {
+            showUserForm();
+        });
+        
+        // 頁面載入完成後初始化
+        window.addEventListener('load', function() {
+            // 等待 Google Identity Services 載入
+            if (typeof google !== 'undefined' && google.accounts) {
+                initializeGoogleSignIn();
+            } else {
+                // 如果 Google 服務還沒載入，等待一下再試
+                setTimeout(initializeGoogleSignIn, 1000);
+            }
+        });
+    </script>
 </body>
 </html>
+
