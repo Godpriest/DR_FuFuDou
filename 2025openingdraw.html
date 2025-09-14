@@ -261,6 +261,10 @@
             justify-content: center;
             z-index: 1000;
         }
+        
+        .lottery-animation.hidden {
+            display: none !important;
+        }
 
         .animation-container {
             width: 300px;
@@ -293,7 +297,7 @@
         </div>
         
         <!-- 抽獎動畫 -->
-        <div id="lottery-animation" class="lottery-animation hidden">
+        <div id="lottery-animation" class="lottery-animation hidden" style="display: none;">
             <div class="animation-container" id="animation-container">
                 <!-- GIF 動畫會在這裡顯示 -->
             </div>
@@ -440,7 +444,7 @@
             userSection.classList.add('hidden');
             resultSection.classList.add('hidden');
             loadingSection.classList.add('hidden');
-            lotteryAnimation.classList.add('hidden');
+            lotteryAnimation.style.display = 'none';
         }
         
         // 顯示訊息
@@ -523,7 +527,7 @@
         // 顯示抽獎動畫和結果
         function showLotteryAnimationWithResult(lotteryResult) {
             hideAllSections();
-            lotteryAnimation.classList.remove('hidden');
+            lotteryAnimation.style.display = 'flex';
             
             // 隨機選擇一個抽獎動畫 GIF (3種通用動畫)
             const randomAnimation = getRandomAnimationGif();
@@ -590,7 +594,7 @@
         
         // 隱藏抽獎動畫
         function hideLotteryAnimation() {
-            lotteryAnimation.classList.add('hidden');
+            lotteryAnimation.style.display = 'none';
         }
         
         // 顯示抽獎結果
