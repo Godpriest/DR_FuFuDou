@@ -361,7 +361,9 @@
             max-width: 100vw;
             display: block;
             position: relative;
-            z-index: 5;
+            z-index: 100;
+            background: transparent;
+            pointer-events: none;
         }
 
         /* 獎品圖片樣式 */
@@ -396,8 +398,11 @@
 
     <!-- 測試按鈕 -->
     <div style="position: fixed; top: 20px; left: 20px; z-index: 10000;">
-        <button onclick="testGifAnimation()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="testGifAnimation()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🎬 測試GIF動畫
+        </button>
+        <button onclick="testGifVisibility()" style="background: #4ecdc4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            👁️ 檢查可見性
         </button>
     </div>
 
@@ -455,7 +460,7 @@
                 </div>
                 
                 <!-- 載入指示器 -->
-                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 10;">
+                <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; z-index: 50; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 5px;">
                     載入動畫中...
                 </div>
             </div>
@@ -1083,6 +1088,31 @@
             }, 50);
         }
 
+        // 檢查元素可見性
+        function checkElementVisibility(element, name) {
+            if (!element) {
+                console.error(`${name}: 元素不存在`);
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(element);
+            const rect = element.getBoundingClientRect();
+            
+            console.log(`=== ${name} 可見性檢查 ===`);
+            console.log('display:', computedStyle.display);
+            console.log('visibility:', computedStyle.visibility);
+            console.log('opacity:', computedStyle.opacity);
+            console.log('z-index:', computedStyle.zIndex);
+            console.log('position:', computedStyle.position);
+            console.log('width:', computedStyle.width);
+            console.log('height:', computedStyle.height);
+            console.log('rect:', rect);
+            console.log('src:', element.src);
+            console.log('complete:', element.complete);
+            console.log('naturalWidth:', element.naturalWidth);
+            console.log('naturalHeight:', element.naturalHeight);
+        }
+
         // 測試GIF動畫函數
         function testGifAnimation() {
             console.log('=== 開始測試GIF動畫 ===');
@@ -1104,10 +1134,14 @@
             
             console.log('測試選擇的GIF元素:', selectedGifId);
             
+            // 檢查動畫容器
+            checkElementVisibility(animationContainer, '動畫容器');
+            
             // 顯示載入指示器
             const loadingIndicator = document.getElementById('loading-indicator');
             if (loadingIndicator) {
                 loadingIndicator.style.display = 'block';
+                checkElementVisibility(loadingIndicator, '載入指示器');
             }
             
             // 立即顯示選中的GIF並開始播放
@@ -1115,12 +1149,22 @@
                 selectedGif.style.display = 'block';
                 selectedGif.style.opacity = '1';
                 
+                // 檢查顯示前的狀態
+                console.log('顯示前檢查:');
+                checkElementVisibility(selectedGif, 'GIF顯示前');
+                
                 // 強制重新載入GIF以確保從頭播放
                 const currentSrc = selectedGif.src;
                 selectedGif.src = '';
                 setTimeout(() => {
                     selectedGif.src = currentSrc + '?t=' + Date.now();
                     console.log('測試GIF開始播放:', currentSrc);
+                    
+                    // 檢查顯示後的狀態
+                    setTimeout(() => {
+                        console.log('顯示後檢查:');
+                        checkElementVisibility(selectedGif, 'GIF顯示後');
+                    }, 100);
                     
                     // 隱藏載入指示器
                     if (loadingIndicator) {
@@ -1138,6 +1182,54 @@
                 lotteryAnimation.style.display = 'none';
                 console.log('測試動畫結束');
             }, 10000);
+        }
+
+        // 簡單可見性測試函數
+        function testGifVisibility() {
+            console.log('=== 簡單可見性測試 ===');
+            
+            // 檢查動畫容器
+            console.log('動畫容器存在:', !!animationContainer);
+            console.log('動畫容器顯示:', lotteryAnimation.style.display);
+            
+            // 檢查GIF元素
+            const gif1 = document.getElementById('gif-animation-1');
+            const gif2 = document.getElementById('gif-animation-2');
+            
+            console.log('GIF1存在:', !!gif1);
+            console.log('GIF2存在:', !!gif2);
+            
+            if (gif1) {
+                console.log('GIF1 src:', gif1.src);
+                console.log('GIF1 display:', gif1.style.display);
+                console.log('GIF1 opacity:', gif1.style.opacity);
+                console.log('GIF1 尺寸:', gif1.offsetWidth, 'x', gif1.offsetHeight);
+            }
+            
+            if (gif2) {
+                console.log('GIF2 src:', gif2.src);
+                console.log('GIF2 display:', gif2.style.display);
+                console.log('GIF2 opacity:', gif2.style.opacity);
+                console.log('GIF2 尺寸:', gif2.offsetWidth, 'x', gif2.offsetHeight);
+            }
+            
+            // 強制顯示第一個GIF 5秒
+            if (gif1) {
+                console.log('強制顯示GIF1 5秒...');
+                lotteryAnimation.style.display = 'flex';
+                gif1.style.display = 'block';
+                gif1.style.opacity = '1';
+                gif1.style.width = '100vw';
+                gif1.style.height = '100vh';
+                gif1.style.objectFit = 'contain';
+                
+                setTimeout(() => {
+                    gif1.style.display = 'none';
+                    gif1.style.opacity = '0';
+                    lotteryAnimation.style.display = 'none';
+                    console.log('測試結束');
+                }, 5000);
+            }
         }
         
         // 頁面載入完成後初始化
