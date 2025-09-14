@@ -63,9 +63,12 @@
             background: #357ae8;
         }
 
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
         }
 
         .btn-success {
@@ -74,14 +77,6 @@
 
         .btn-success:hover {
             background: #229954;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
         }
 
         .form-group {
@@ -180,6 +175,11 @@
         .hidden {
             display: none;
         }
+
+        /* Google One Tap 樣式 */
+        #g_id_onload {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -187,10 +187,19 @@
         <h1 class="lottery-title">🎉 福福堂開幕抽獎活動 🎉</h1>
         <p class="lottery-subtitle">福福堂開幕慶祝抽獎活動</p>
         
+        <!-- Google One Tap -->
+        <div id="g_id_onload"
+             data-client_id="640378175905-6e5f6beae5v8a9i8747795mjpgcmipln.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        
         <!-- 登入區域 -->
         <div id="login-section">
             <p>請先登入 Google 帳號參與抽獎</p>
-            <button id="login-btn" class="btn" onclick="startLogin()">
+            <button id="google-login-btn" class="btn" onclick="googleOneTap()">
                 使用 Google 帳號登入
             </button>
         </div>
@@ -230,6 +239,9 @@
         <div id="message-area"></div>
     </div>
 
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <script>
         // 配置
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwD-a-7F-Oah0IKt4MfcTbTa0FS2pqWrS573XWOtCG3NrOOMd0UB5llHSuxmA6x-cLjvg/exec';
@@ -280,46 +292,96 @@
             }, 5000);
         }
         
-        // 開始登入流程
-        async function startLogin() {
-            showLoading();
-            
-            try {
-                // 取得 Google 登入 URL
-                const response = await fetch(`${APPS_SCRIPT_URL}?action=getAuthUrl`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    // 開啟 Google 登入視窗
-                    window.location.href = result.authUrl;
-                } else {
-                    showMessage('無法取得登入 URL: ' + result.error);
-                    hideLoading();
-                }
-            } catch (error) {
-                console.error('登入錯誤:', error);
-                showMessage('登入失敗，請重試');
-                hideLoading();
+        // 啟動 Google One Tap
+        function googleOneTap() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.prompt();
+            } else {
+                showMessage('Google 登入服務載入中，請稍後再試');
             }
         }
         
+        // 處理 Google 登入回應
+        function handleCredentialResponse(response) {
+            console.log('Google 登入成功:', response);
+            
+            try {
+                // 解碼 JWT token 取得用戶資訊
+                const responsePayload = decodeJwtResponse(response.credential);
+                currentUser = {
+                    id: responsePayload.sub,
+                    email: responsePayload.email,
+                    name: responsePayload.name,
+                    picture: responsePayload.picture
+                };
+                
+                console.log('用戶資訊:', currentUser);
+                
+                // 更新 UI
+                displayUserInfo(currentUser);
+                checkUserStatus();
+                
+            } catch (error) {
+                console.error('處理登入回應時發生錯誤:', error);
+                showMessage('登入處理失敗，請重試');
+            }
+        }
+        
+        // 解碼 JWT 回應
+        function decodeJwtResponse(token) {
+            try {
+                var base64Url = token.split('.')[1];
+                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                
+                return JSON.parse(jsonPayload);
+            } catch (error) {
+                console.error('JWT 解碼錯誤:', error);
+                throw error;
+            }
+        }
+        
+        // 顯示用戶資訊
+        function displayUserInfo(user) {
+            userInfo.innerHTML = `
+                <h4>歡迎，${user.name}！</h4>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>用戶 ID:</strong> ${user.id}</p>
+            `;
+        }
+        
         // 檢查用戶狀態
-        async function checkUserStatus(userId, email, phone = '') {
+        async function checkUserStatus() {
+            showLoading();
+            
             try {
                 const params = new URLSearchParams({
                     action: 'checkUser',
-                    userId: userId,
-                    email: email,
-                    phone: phone
+                    userId: currentUser.id,
+                    email: currentUser.email,
+                    phone: ''
                 });
                 
                 const response = await fetch(`${APPS_SCRIPT_URL}?${params}`);
                 const result = await response.json();
                 
-                return result;
+                hideLoading();
+                
+                if (result.success && result.hasParticipated && result.alreadyWon) {
+                    displayResult(result);
+                } else {
+                    hideAllSections();
+                    userSection.classList.remove('hidden');
+                }
+                
             } catch (error) {
                 console.error('檢查用戶狀態錯誤:', error);
-                return { success: false, error: '檢查用戶狀態失敗' };
+                showMessage('檢查用戶狀態失敗，請重試');
+                hideLoading();
+                hideAllSections();
+                loginSection.classList.remove('hidden');
             }
         }
         
@@ -342,15 +404,6 @@
                 console.error('抽獎錯誤:', error);
                 return { success: false, error: '抽獎失敗，請重試' };
             }
-        }
-        
-        // 顯示用戶資訊
-        function displayUserInfo(user) {
-            userInfo.innerHTML = `
-                <h4>歡迎，${user.name}！</h4>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p><strong>用戶 ID:</strong> ${user.id}</p>
-            `;
         }
         
         // 顯示抽獎結果
@@ -386,7 +439,7 @@
             e.preventDefault();
             
             if (!currentUser) {
-                showMessage('請先登入');
+                showMessage('請先登入 Google 帳號');
                 return;
             }
             
@@ -402,23 +455,6 @@
             showLoading();
             
             try {
-                // 先檢查用戶狀態
-                const statusResult = await checkUserStatus(currentUser.id, currentUser.email, phone);
-                
-                if (!statusResult.success) {
-                    showMessage(statusResult.error);
-                    hideLoading();
-                    userSection.classList.remove('hidden');
-                    return;
-                }
-                
-                if (statusResult.hasParticipated && statusResult.alreadyWon) {
-                    displayResult(statusResult);
-                    hideLoading();
-                    return;
-                }
-                
-                // 執行抽獎
                 const lotteryResult = await performLottery(currentUser.id, currentUser.email, name, phone);
                 
                 hideLoading();
@@ -437,57 +473,6 @@
                 userSection.classList.remove('hidden');
             }
         });
-        
-        // 頁面載入時檢查 URL 參數
-        window.addEventListener('load', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const userParam = urlParams.get('user');
-            const errorParam = urlParams.get('error');
-            
-            if (userParam) {
-                // 處理從 Apps Script 重定向回來的用戶資訊
-                handleUserRedirect(userParam);
-            } else if (errorParam) {
-                // 處理錯誤
-                showMessage(decodeURIComponent(errorParam));
-                hideAllSections();
-                loginSection.classList.remove('hidden');
-            }
-        });
-        
-        // 處理用戶重定向
-        async function handleUserRedirect(userParam) {
-            showLoading();
-            
-            try {
-                const userData = JSON.parse(decodeURIComponent(userParam));
-                currentUser = userData;
-                
-                displayUserInfo(currentUser);
-                
-                // 檢查用戶是否已經參與過抽獎
-                const statusResult = await checkUserStatus(currentUser.id, currentUser.email);
-                
-                hideLoading();
-                
-                if (statusResult.success && statusResult.hasParticipated && statusResult.alreadyWon) {
-                    displayResult(statusResult);
-                } else {
-                    hideAllSections();
-                    userSection.classList.remove('hidden');
-                }
-                
-                // 清除 URL 參數
-                window.history.replaceState({}, document.title, window.location.pathname);
-                
-            } catch (error) {
-                console.error('處理用戶資訊錯誤:', error);
-                showMessage('用戶資訊處理失敗，請重新登入');
-                hideLoading();
-                hideAllSections();
-                loginSection.classList.remove('hidden');
-            }
-        }
     </script>
 </body>
 </html>
