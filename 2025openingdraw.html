@@ -104,12 +104,6 @@
             border-color: #357ae8;
         }
 
-        .btn-google:disabled {
-            background: #ccc;
-            border-color: #ccc;
-            cursor: not-allowed;
-        }
-
         .form-group {
             margin-bottom: 20px;
             text-align: left;
@@ -268,25 +262,13 @@
             z-index: 1000;
         }
 
-        .lottery-wheel {
+        .animation-container {
             width: 300px;
             height: 300px;
-            border-radius: 50%;
             position: relative;
-            background: transparent; /* 移除原本的彩色背景 */
-        }
-
-        .lottery-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #ff6b6b;
-            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -312,8 +294,8 @@
         
         <!-- 抽獎動畫 -->
         <div id="lottery-animation" class="lottery-animation hidden">
-            <div class="lottery-wheel">
-                <div class="lottery-pointer"></div>
+            <div class="animation-container" id="animation-container">
+                <!-- GIF 動畫會在這裡顯示 -->
             </div>
         </div>
         
@@ -369,6 +351,7 @@
         const lotteryForm = document.getElementById('lottery-form');
         const googleSigninContainer = document.getElementById('google-signin-container');
         const lotteryAnimation = document.getElementById('lottery-animation');
+        const animationContainer = document.getElementById('animation-container');
         
         // 處理 Google 登入回應
         function handleCredentialResponse(response) {
@@ -537,12 +520,6 @@
             }
         }
         
-        // 顯示抽獎動畫
-        function showLotteryAnimation() {
-            hideAllSections();
-            lotteryAnimation.classList.remove('hidden');
-        }
-        
         // 顯示抽獎動畫和結果
         function showLotteryAnimationWithResult(lotteryResult) {
             hideAllSections();
@@ -551,20 +528,16 @@
             // 隨機選擇一個抽獎動畫 GIF (3種通用動畫)
             const randomAnimation = getRandomAnimationGif();
             
-            // 更新動畫區域
-            const lotteryWheel = lotteryAnimation.querySelector('.lottery-wheel');
-            lotteryWheel.innerHTML = `
-                <div class="lottery-pointer"></div>
-                <div id="animation-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;">
-                    <img id="lottery-gif" src="images/animations/${randomAnimation}" 
-                         alt="抽獎動畫" 
-                         style="width: 100%; height: 100%; object-fit: contain;"
-                         onerror="handleGifError(this)">
-                    <img id="prize-png" src="images/prizes/${lotteryResult.imageFile || 'default_prize.png'}" 
-                         alt="${lotteryResult.prize}" 
-                         style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; object-fit: contain; opacity: 0; transition: opacity 0.5s ease;"
-                         onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
-                </div>
+            // 清空容器並添加新的動畫
+            animationContainer.innerHTML = `
+                <img id="lottery-gif" src="images/animations/${randomAnimation}" 
+                     alt="抽獎動畫" 
+                     style="width: 100%; height: 100%; object-fit: contain;"
+                     onerror="handleGifError(this)">
+                <img id="prize-png" src="images/prizes/${lotteryResult.imageFile || 'default_prize.png'}" 
+                     alt="${lotteryResult.prize}" 
+                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; object-fit: contain; opacity: 0; transition: opacity 0.5s ease;"
+                     onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
             `;
             
             // 在動畫接近結束時顯示獎品 PNG
