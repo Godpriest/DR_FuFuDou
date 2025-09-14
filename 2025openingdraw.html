@@ -333,7 +333,8 @@
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleCredentialResponse,
                 auto_select: false,
-                cancel_on_tap_outside: false
+                cancel_on_tap_outside: false,
+                use_fedcm_for_prompt: false
             });
             
             // 渲染登入按鈕
@@ -342,7 +343,7 @@
                 {
                     theme: 'outline',
                     size: 'large',
-                    width: '100%',
+                    width: '300px',
                     text: 'continue_with',
                     shape: 'rectangular'
                 }
