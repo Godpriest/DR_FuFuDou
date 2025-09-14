@@ -408,8 +408,14 @@
         <button onclick="simpleGifTest()" style="background: #45b7d1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🔥 簡單測試
         </button>
-        <button onclick="checkImagePaths()" style="background: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="checkImagePaths()" style="background: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🔍 檢查路徑
+        </button>
+        <button onclick="checkFileSizes()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+            📏 檢查檔案大小
+        </button>
+        <button onclick="testExternalImages()" style="background: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🌐 外部圖片測試
         </button>
     </div>
 
@@ -1325,6 +1331,129 @@
             // 檢查當前頁面URL
             console.log('當前頁面URL:', window.location.href);
             console.log('基礎URL:', window.location.origin + window.location.pathname);
+        }
+
+        // 檢查檔案大小和GitHub限制
+        async function checkFileSizes() {
+            console.log('=== 檢查檔案大小和GitHub限制 ===');
+            
+            const imageUrls = [
+                'images/animations/lottery_animation_1.gif',
+                'images/animations/lottery_animation_2.gif',
+                'images/prizes/fishball.png',
+                'images/prizes/hot_soup.png',
+                'images/prizes/tea_jelly.png',
+                'images/prizes/shaved_ice.png',
+                'images/logo_1_white.png'
+            ];
+            
+            console.log('GitHub Pages 限制:');
+            console.log('- 單一檔案大小限制: 100MB (但建議 < 25MB)');
+            console.log('- 倉庫總大小限制: 1GB');
+            console.log('- 頻寬限制: 100GB/月');
+            console.log('- 建置時間限制: 10分鐘');
+            console.log('');
+            
+            for (const url of imageUrls) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    
+                    if (response.ok) {
+                        const contentLength = response.headers.get('content-length');
+                        const contentType = response.headers.get('content-type');
+                        
+                        if (contentLength) {
+                            const sizeInMB = (parseInt(contentLength) / 1024 / 1024).toFixed(2);
+                            const sizeInKB = (parseInt(contentLength) / 1024).toFixed(2);
+                            
+                            console.log(`✅ ${url}`);
+                            console.log(`   大小: ${sizeInMB} MB (${sizeInKB} KB)`);
+                            console.log(`   類型: ${contentType}`);
+                            
+                            if (parseInt(contentLength) > 25 * 1024 * 1024) {
+                                console.warn(`   ⚠️  檔案過大！建議壓縮`);
+                            }
+                        } else {
+                            console.log(`✅ ${url} - 載入成功但無法取得大小`);
+                        }
+                    } else {
+                        console.error(`❌ ${url} - HTTP ${response.status}: ${response.statusText}`);
+                        
+                        if (response.status === 413) {
+                            console.error('   💥 檔案太大！');
+                        } else if (response.status === 404) {
+                            console.error('   📁 檔案不存在！');
+                        } else if (response.status === 403) {
+                            console.error('   🚫 存取被拒絕！');
+                        }
+                    }
+                } catch (error) {
+                    console.error(`❌ ${url} - 網路錯誤:`, error.message);
+                }
+            }
+            
+            // 檢查GitHub倉庫狀態
+            console.log('');
+            console.log('=== GitHub 倉庫檢查 ===');
+            console.log('倉庫URL:', window.location.origin);
+            console.log('分支:', window.location.pathname.includes('/gh-pages') ? 'gh-pages' : 'main');
+        }
+
+        // 測試外部圖片託管服務
+        function testExternalImages() {
+            console.log('=== 外部圖片託管測試 ===');
+            
+            // 使用一些免費的圖片託管服務進行測試
+            const testImages = [
+                {
+                    name: 'GitHub Raw',
+                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery_animation_1.gif'
+                },
+                {
+                    name: 'GitHub Raw (備用)',
+                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/gh-pages/images/animations/lottery_animation_1.gif'
+                },
+                {
+                    name: 'Imgur (示例)',
+                    url: 'https://i.imgur.com/example.gif'
+                }
+            ];
+            
+            console.log('測試外部圖片託管服務...');
+            console.log('');
+            console.log('建議的替代方案:');
+            console.log('1. GitHub Raw: https://raw.githubusercontent.com/用戶名/倉庫名/分支名/路徑');
+            console.log('2. Imgur: https://imgur.com/ (免費，支援大檔案)');
+            console.log('3. Cloudinary: https://cloudinary.com/ (免費額度)');
+            console.log('4. ImageBB: https://imgbb.com/ (免費)');
+            console.log('5. PostImages: https://postimages.org/ (免費)');
+            console.log('');
+            
+            // 測試GitHub Raw URL
+            const githubRawUrl = 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery_animation_1.gif';
+            console.log('測試GitHub Raw URL:', githubRawUrl);
+            
+            const testImg = new Image();
+            testImg.onload = function() {
+                console.log('✅ GitHub Raw 載入成功！');
+                console.log('建議: 使用 GitHub Raw URL 替代相對路徑');
+                console.log('格式: https://raw.githubusercontent.com/用戶名/倉庫名/分支名/路徑');
+            };
+            testImg.onerror = function() {
+                console.error('❌ GitHub Raw 載入失敗');
+                console.log('可能原因:');
+                console.log('1. 檔案不存在於main分支');
+                console.log('2. 檔案路徑錯誤');
+                console.log('3. 倉庫名稱錯誤');
+            };
+            testImg.src = githubRawUrl;
+            
+            // 顯示當前頁面資訊
+            console.log('');
+            console.log('當前頁面資訊:');
+            console.log('URL:', window.location.href);
+            console.log('Origin:', window.location.origin);
+            console.log('Pathname:', window.location.pathname);
         }
         
         // 頁面載入完成後初始化
