@@ -685,15 +685,15 @@
                      onerror="handlePrizeImageError(this, '${lotteryResult.prize}')">
             `;
             
-            // 使用預載入的GIF圖片
+            // 強制播放GIF動畫
             setTimeout(() => {
                 const gifImg = document.getElementById('lottery-gif');
                 const prizeImg = document.getElementById('prize-png');
                 const loadingIndicator = document.getElementById('loading-indicator');
                 
                 if (gifImg && loadingIndicator) {
-                    // 使用預載入的GIF圖片
-                    usePreloadedGif(gifImg, animationSrc);
+                    // 強制播放GIF動畫
+                    forceGifPlay(gifImg, animationSrc);
                     
                     // 使用預載入的獎品圖片
                     const preloadedPrize = prizeImages.find(img => img.src.includes(prizeSrc));
@@ -989,18 +989,29 @@
                    prizeImages.some(img => img.src.includes(src));
         }
 
-        // 使用預載入的GIF圖片
-        function usePreloadedGif(gifElement, src) {
-            console.log('使用預載入GIF:', src);
-            // 找到預載入的圖片
-            const preloadedImg = animationImages.find(img => img.src.includes(src));
-            if (preloadedImg) {
-                gifElement.src = preloadedImg.src;
-                console.log('使用預載入圖片:', preloadedImg.src);
-            } else {
-                gifElement.src = src;
-                console.log('使用原始路徑:', src);
-            }
+        // 強制重新載入GIF以觸發動畫播放
+        function forceGifPlay(gifElement, src) {
+            console.log('強制播放GIF:', src);
+            
+            // 方法1：先清空src，再重新設定
+            gifElement.src = '';
+            
+            // 強制瀏覽器重新載入並播放GIF
+            setTimeout(() => {
+                // 添加時間戳確保重新載入
+                gifElement.src = src + '?t=' + Date.now();
+                console.log('GIF重新載入:', gifElement.src);
+                
+                // 方法2：如果還是不播放，嘗試複製元素
+                setTimeout(() => {
+                    if (!gifElement.complete || gifElement.naturalWidth === 0) {
+                        console.log('嘗試複製元素強制播放');
+                        const newGif = gifElement.cloneNode(true);
+                        newGif.src = src + '?t=' + Date.now() + '&force=1';
+                        gifElement.parentNode.replaceChild(newGif, gifElement);
+                    }
+                }, 100);
+            }, 50);
         }
 
         // 測試GIF動畫函數
@@ -1038,13 +1049,13 @@
                      onerror="console.error('測試GIF載入失敗:', this.src);">
             `;
             
-            // 使用預載入的圖片
+            // 強制播放GIF動畫
             setTimeout(() => {
                 const testGif = document.getElementById('test-gif');
                 const loadingIndicator = document.getElementById('loading-indicator');
                 
                 if (testGif) {
-                    usePreloadedGif(testGif, `images/animations/${randomAnimation}`);
+                    forceGifPlay(testGif, `images/animations/${randomAnimation}`);
                     if (loadingIndicator) {
                         loadingIndicator.style.display = 'none';
                     }
