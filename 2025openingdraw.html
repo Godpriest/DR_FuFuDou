@@ -260,7 +260,7 @@
                 
                 <!-- Google 登入按鈕 -->
                 <div id="google-login-container" class="google-login-container">
-                    <button id="google-login-btn" class="google-login-btn">
+                    <button id="google-login-btn" class="google-login-btn" onclick="googleLogin()">
                         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
                         使用 Google 帳號登入
                     </button>
@@ -328,28 +328,74 @@
         const loading = document.getElementById('loading');
         const userForm = document.getElementById('user-form');
         
-        // 初始化 Google Identity Services
-        function initializeGoogleSignIn() {
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleCredentialResponse,
-                auto_select: false,
-                cancel_on_tap_outside: false,
-                use_fedcm_for_prompt: false,
-                context: 'signin'
+        // 簡化的 Google 登入函數
+        function googleLogin() {
+            console.log('開始 Google 登入流程');
+            
+            // 使用彈出視窗進行 OAuth 登入
+            const authUrl = `https://accounts.google.com/oauth/authorize?` +
+                `client_id=${GOOGLE_CLIENT_ID}&` +
+                `redirect_uri=${encodeURIComponent(window.location.origin)}&` +
+                `response_type=code&` +
+                `scope=openid email profile&` +
+                `access_type=offline`;
+            
+            const popup = window.open(authUrl, 'googleAuth', 'width=500,height=600');
+            
+            // 監聽彈出視窗關閉
+            const checkClosed = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(checkClosed);
+                    // 從 URL 參數中獲取授權碼
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const code = urlParams.get('code');
+                    
+                    if (code) {
+                        handleAuthCode(code);
+                    }
+                }
+            }, 1000);
+        }
+        
+        // 處理授權碼
+        function handleAuthCode(code) {
+            console.log('收到授權碼:', code);
+            
+            // 直接使用授權碼呼叫 Apps Script
+            const params = new URLSearchParams({
+                action: 'handleGoogleAuth',
+                code: code,
+                redirect_uri: window.location.origin
             });
             
-            // 渲染登入按鈕
-            google.accounts.id.renderButton(
-                document.getElementById('google-login-btn'),
-                {
-                    theme: 'outline',
-                    size: 'large',
-                    width: '300px',
-                    text: 'continue_with',
-                    shape: 'rectangular'
+            fetch(`${APPS_SCRIPT_URL}?${params}`, {
+                method: 'GET',
+                mode: 'cors'
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Google 認證結果:', result);
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    googleCredential = result.credential;
+                    
+                    updateLoginStatus();
+                    showUserForm();
+                } else {
+                    alert('Google 登入失敗: ' + result.error);
                 }
-            );
+            })
+            .catch(error => {
+                console.error('Google 認證錯誤:', error);
+                alert('Google 登入失敗，請重試');
+            });
+        }
+        
+        // 初始化 Google Identity Services（備用方案）
+        function initializeGoogleSignIn() {
+            // 暫時不使用 GSI，改用傳統 OAuth
+            console.log('使用傳統 OAuth 登入方式');
         }
         
         // 處理 Google 登入回應
