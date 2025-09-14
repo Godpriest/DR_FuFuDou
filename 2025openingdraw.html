@@ -405,8 +405,11 @@
         <button onclick="testGifVisibility()" style="background: #4ecdc4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             👁️ 檢查可見性
         </button>
-        <button onclick="simpleGifTest()" style="background: #45b7d1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="simpleGifTest()" style="background: #45b7d1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🔥 簡單測試
+        </button>
+        <button onclick="checkImagePaths()" style="background: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🔍 檢查路徑
         </button>
     </div>
 
@@ -437,11 +440,11 @@
                 <img id="gif-animation-1" class="lottery-gif" 
                      src="images/animations/lottery_animation_1.gif" 
                      alt="抽獎動畫1" 
-                     style="display: none; opacity: 0;">
+                     style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: contain; z-index: 100;">
                 <img id="gif-animation-2" class="lottery-gif" 
                      src="images/animations/lottery_animation_2.gif" 
                      alt="抽獎動畫2" 
-                     style="display: none; opacity: 0;">
+                     style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: contain; z-index: 100;">
                 
                 <!-- 獎品圖片容器 -->
                 <div id="prize-container" style="display: none;">
@@ -725,23 +728,17 @@
                 loadingIndicator.style.display = 'block';
             }
             
-            // 立即顯示選中的GIF並開始播放
+            // 立即顯示選中的GIF
             if (selectedGif) {
                 selectedGif.style.display = 'block';
                 selectedGif.style.opacity = '1';
                 
-                // 強制重新載入GIF以確保從頭播放
-                const currentSrc = selectedGif.src;
-                selectedGif.src = '';
-                setTimeout(() => {
-                    selectedGif.src = currentSrc + '?t=' + Date.now();
-                    console.log('GIF開始播放:', currentSrc);
-                    
-                    // 隱藏載入指示器
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                }, 50);
+                console.log('GIF開始播放:', selectedGif.src);
+                
+                // 隱藏載入指示器
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
             }
             
             // 5秒時切換到獎品顯示
@@ -1148,7 +1145,7 @@
                 checkElementVisibility(loadingIndicator, '載入指示器');
             }
             
-            // 立即顯示選中的GIF並開始播放
+            // 立即顯示選中的GIF
             if (selectedGif) {
                 selectedGif.style.display = 'block';
                 selectedGif.style.opacity = '1';
@@ -1157,24 +1154,18 @@
                 console.log('顯示前檢查:');
                 checkElementVisibility(selectedGif, 'GIF顯示前');
                 
-                // 強制重新載入GIF以確保從頭播放
-                const currentSrc = selectedGif.src;
-                selectedGif.src = '';
+                console.log('測試GIF開始播放:', selectedGif.src);
+                
+                // 檢查顯示後的狀態
                 setTimeout(() => {
-                    selectedGif.src = currentSrc + '?t=' + Date.now();
-                    console.log('測試GIF開始播放:', currentSrc);
-                    
-                    // 檢查顯示後的狀態
-                    setTimeout(() => {
-                        console.log('顯示後檢查:');
-                        checkElementVisibility(selectedGif, 'GIF顯示後');
-                    }, 100);
-                    
-                    // 隱藏載入指示器
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                }, 50);
+                    console.log('顯示後檢查:');
+                    checkElementVisibility(selectedGif, 'GIF顯示後');
+                }, 100);
+                
+                // 隱藏載入指示器
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
             }
             
             // 10秒後關閉測試
@@ -1230,16 +1221,9 @@
                     gif2.style.opacity = '0';
                 }
                 
-                // 顯示GIF1，不重新載入
+                // 顯示GIF1，只改變display和opacity
                 gif1.style.display = 'block';
                 gif1.style.opacity = '1';
-                gif1.style.position = 'absolute';
-                gif1.style.top = '0';
-                gif1.style.left = '0';
-                gif1.style.width = '100vw';
-                gif1.style.height = '100vh';
-                gif1.style.objectFit = 'contain';
-                gif1.style.zIndex = '100';
                 
                 console.log('GIF1顯示設定完成');
                 
@@ -1290,6 +1274,57 @@
                     console.log('測試GIF已移除');
                 }
             }, 5000);
+        }
+
+        // 檢查圖片路徑和載入狀態
+        function checkImagePaths() {
+            console.log('=== 檢查圖片路徑 ===');
+            
+            const imageUrls = [
+                'images/animations/lottery_animation_1.gif',
+                'images/animations/lottery_animation_2.gif',
+                'images/prizes/fishball.png',
+                'images/prizes/hot_soup.png',
+                'images/prizes/tea_jelly.png',
+                'images/prizes/shaved_ice.png',
+                'images/logo_1_white.png'
+            ];
+            
+            let loadedCount = 0;
+            let totalCount = imageUrls.length;
+            
+            imageUrls.forEach((url, index) => {
+                const testImg = new Image();
+                
+                testImg.onload = function() {
+                    loadedCount++;
+                    console.log(`✅ ${url} - 載入成功 (${loadedCount}/${totalCount})`);
+                    
+                    if (loadedCount === totalCount) {
+                        console.log('🎉 所有圖片載入完成！');
+                    }
+                };
+                
+                testImg.onerror = function() {
+                    loadedCount++;
+                    console.error(`❌ ${url} - 載入失敗 (${loadedCount}/${totalCount})`);
+                    console.error('可能的問題:');
+                    console.error('1. 檔案路徑錯誤');
+                    console.error('2. 檔案不存在');
+                    console.error('3. 伺服器設定問題');
+                    console.error('4. CORS 問題');
+                    
+                    if (loadedCount === totalCount) {
+                        console.log('❌ 部分圖片載入失敗！');
+                    }
+                };
+                
+                testImg.src = url;
+            });
+            
+            // 檢查當前頁面URL
+            console.log('當前頁面URL:', window.location.href);
+            console.log('基礎URL:', window.location.origin + window.location.pathname);
         }
         
         // 頁面載入完成後初始化
