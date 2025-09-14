@@ -329,8 +329,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: #25486e;
             display: flex;
             align-items: center;
@@ -354,13 +354,14 @@
 
         /* 動畫 GIF 樣式 - 1920x1080 比例 */
         .lottery-gif {
-            width: auto;
+            width: 100vw;
             height: 100vh;
             object-fit: contain;
             transition: opacity 0.3s ease;
-            max-width: 100vw;
             display: block;
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             z-index: 100;
             background: transparent;
             pointer-events: none;
@@ -401,8 +402,11 @@
         <button onclick="testGifAnimation()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🎬 測試GIF動畫
         </button>
-        <button onclick="testGifVisibility()" style="background: #4ecdc4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="testGifVisibility()" style="background: #4ecdc4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             👁️ 檢查可見性
+        </button>
+        <button onclick="simpleGifTest()" style="background: #45b7d1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🔥 簡單測試
         </button>
     </div>
 
@@ -1216,12 +1220,28 @@
             // 強制顯示第一個GIF 5秒
             if (gif1) {
                 console.log('強制顯示GIF1 5秒...');
+                
+                // 顯示動畫容器
                 lotteryAnimation.style.display = 'flex';
+                
+                // 隱藏所有其他GIF
+                if (gif2) {
+                    gif2.style.display = 'none';
+                    gif2.style.opacity = '0';
+                }
+                
+                // 顯示GIF1，不重新載入
                 gif1.style.display = 'block';
                 gif1.style.opacity = '1';
+                gif1.style.position = 'absolute';
+                gif1.style.top = '0';
+                gif1.style.left = '0';
                 gif1.style.width = '100vw';
                 gif1.style.height = '100vh';
                 gif1.style.objectFit = 'contain';
+                gif1.style.zIndex = '100';
+                
+                console.log('GIF1顯示設定完成');
                 
                 setTimeout(() => {
                     gif1.style.display = 'none';
@@ -1230,6 +1250,46 @@
                     console.log('測試結束');
                 }, 5000);
             }
+        }
+
+        // 最簡單的GIF測試
+        function simpleGifTest() {
+            console.log('=== 最簡單GIF測試 ===');
+            
+            // 創建一個新的img元素
+            const testImg = document.createElement('img');
+            testImg.src = 'images/animations/lottery_animation_1.gif';
+            testImg.style.position = 'fixed';
+            testImg.style.top = '50%';
+            testImg.style.left = '50%';
+            testImg.style.transform = 'translate(-50%, -50%)';
+            testImg.style.width = '80vw';
+            testImg.style.height = '80vh';
+            testImg.style.objectFit = 'contain';
+            testImg.style.zIndex = '10000';
+            testImg.style.border = '5px solid red';
+            testImg.style.background = 'white';
+            
+            testImg.onload = function() {
+                console.log('GIF載入成功！');
+                console.log('尺寸:', this.naturalWidth, 'x', this.naturalHeight);
+            };
+            
+            testImg.onerror = function() {
+                console.error('GIF載入失敗！');
+            };
+            
+            // 添加到頁面
+            document.body.appendChild(testImg);
+            console.log('GIF已添加到頁面');
+            
+            // 5秒後移除
+            setTimeout(() => {
+                if (testImg.parentNode) {
+                    testImg.parentNode.removeChild(testImg);
+                    console.log('測試GIF已移除');
+                }
+            }, 5000);
         }
         
         // 頁面載入完成後初始化
