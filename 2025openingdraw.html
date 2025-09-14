@@ -272,34 +272,8 @@
             width: 300px;
             height: 300px;
             border-radius: 50%;
-            background: conic-gradient(
-                #ff6b6b 0deg 60deg,
-                #4ecdc4 60deg 120deg,
-                #45b7d1 120deg 180deg,
-                #96ceb4 180deg 240deg,
-                #ffeaa7 240deg 300deg,
-                #dda0dd 300deg 360deg
-            );
             position: relative;
-            animation: spin 2s linear infinite;
-        }
-
-        .lottery-wheel::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            background: transparent; /* 移除原本的彩色背景 */
         }
 
         .lottery-pointer {
