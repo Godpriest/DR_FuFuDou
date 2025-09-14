@@ -445,19 +445,17 @@
             showLoading();
             
             try {
-                // 呼叫 Apps Script 執行抽獎
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'performDraw',
-                        userId: currentUser.id,
-                        email: currentUser.email,
-                        name: name,
-                        phone: phone
-                    })
+                // 呼叫 Apps Script 執行抽獎（使用 GET 請求避免 CORS 問題）
+                const params = new URLSearchParams({
+                    action: 'performDraw',
+                    userId: currentUser.id,
+                    email: currentUser.email,
+                    name: name,
+                    phone: phone
+                });
+                
+                const response = await fetch(`${APPS_SCRIPT_URL}?${params}`, {
+                    method: 'GET'
                 });
                 
                 const result = await response.json();
