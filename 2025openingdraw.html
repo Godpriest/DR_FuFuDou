@@ -57,6 +57,8 @@
             transition: background-color 0.3s ease;
             width: 100%;
             margin-bottom: 15px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn:hover {
@@ -77,6 +79,34 @@
 
         .btn-success:hover {
             background: #229954;
+        }
+
+        .btn-google {
+            background: #4285f4;
+            color: white;
+            border: 2px solid #4285f4;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-google:hover {
+            background: #357ae8;
+            border-color: #357ae8;
+        }
+
+        .btn-google:disabled {
+            background: #ccc;
+            border-color: #ccc;
+            cursor: not-allowed;
         }
 
         .form-group {
@@ -176,9 +206,25 @@
             display: none;
         }
 
-        /* Google One Tap 樣式 */
-        #g_id_onload {
-            display: none;
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyLjU2IDEyLjI1QzIyLjU2IDExLjQ3IDIyLjQ5IDEwLjcyIDIyLjM2IDEwSDExVjE0LjI1SDE3Ljk2QzE3LjY2IDE1LjcyIDE2LjY2IDE2Ljk4IDE1LjIxIDE3LjcyVjIwLjA5SDE5LjI4QzIxLjE0IDE4LjM1IDIyLjU2IDE1LjU3IDIyLjU2IDEyLjI1WiIgZmlsbD0iIzQyODVGNCIvPgo8cGF0aCBkPSJNMTEgMjNDMTMuNjcgMjMgMTYuMDQgMjIuMDggMTcuNzcgMjAuNTlMMTUuMjEgMTcuNzJDMTQuLjM0IDE4LjQzIDEzLjE4IDE4Ljg3IDExIDE4Ljg3QzguNDggMTguODcgNi4yNSAxNy4wNiA1LjU2IDE0LjYzTDEuMzkgMTcuMDJDMi45OCAyMC4yMSA2Ljc1IDIzIDExIDIzWiIgZmlsbD0iIzM0QTg1MyIvPgo8cGF0aCBkPSJNNS41NiAxNC42M0M1LjI2IDEzLjY3IDUuMTIgMTIuNjUgNS4xMiAxMS41QzUuMTIgMTAuMzUgNS4yNiA5LjMzIDUuNTYgOC4zN0wxLjM5IDUuOThDMTAuNDUgMS4wOSAyMi4wOCA1Ljg3IDIyLjA4IDEzLjYzSDIyLjU2QzIyLjU2IDEyLjI1IDIyLjQ5IDEwLjcyIDIyLjM2IDEwSDExVjE0LjI1SDE3Ljk2QzE3LjY2IDE1LjcyIDE2LjY2IDE2Ljk4IDE1LjIxIDE3LjcyVjIwLjA5SDE5LjI4QzIxLjE0IDE4LjM1IDIyLjU2IDE1LjU3IDIyLjU2IDEyLjI1WiIgZmlsbD0iI0ZCQkMwNSIvPgo8cGF0aCBkPSJNMTEgNUM2LjI4IDUgMi45OCA3Ljg0IDEuMzkgMTEuOTlMNS41NiA4LjM3QzYuMjUgNS45NCA4LjQ4IDQuMTMgMTEgNC4xM0MxMy4xOCA0LjEzIDE1LjM0IDQuNTcgMTYuMjEgNS4yOEwyMi4wOCAxLjQxQzIwLjM1IDAuNTMgMTcuOTggMCAxMSAwQzQuODQgMCAwIDEuOTggMCA3QzAgMTIuMDIgNC44NCAxNyAxMSAxN1YxM0MxMy42NyAxMyAxNi4wNCAxMi4wOCAxNy43NyAxMC41OUwxNS4yMSA3LjcyQzE0LjM0IDguNDMgMTMuMTggOC44NyAxMSA4Ljg3QzguNDggOC44NyA2LjI1IDcuMDYgNS41NiA0LjYzTDEuMzkgNy4wMkMyLjk4IDEwLjIxIDYuNzUgMTMgMTEgMTNWMTdDMTcuMTYgMTcgMjMgMTEuMTYgMjMgNUMyMyAzLjM0IDIyLjE2IDEuODMgMjAuNzggMC42NEMxOS40IC0wLjU1IDE3Ljg0IC0xIDExIC0xQzQuMTYgLTEgLTEgNC4xNiAtMSAxMUMtMSAxNy44NCA0LjE2IDIzIDExIDIzQzE3Ljg0IDIzIDIzIDE3Ljg0IDIzIDExQzIzIDEwLjQ0IDIyLjk2IDkuODggMjIuODkgOS4zM0gyMlYxMUMyMiAxNy4wOCAxNy4wOCAyMiAxMSAyMkM0LjkyIDIyIDAgMTcuMDggMCAxMUMwIDQuOTIgNC45MiAwIDExIDBaIiBmaWxsPSIjRUE0MzM1Ii8+Cjwvc3ZnPgo=') center/contain no-repeat;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
         }
     </style>
 </head>
@@ -187,19 +233,11 @@
         <h1 class="lottery-title">🎉 福福堂開幕抽獎活動 🎉</h1>
         <p class="lottery-subtitle">福福堂開幕慶祝抽獎活動</p>
         
-        <!-- Google One Tap -->
-        <div id="g_id_onload"
-             data-client_id="640378175905-6e5f6beae5v8a9i8747795mjpgcmipln.apps.googleusercontent.com"
-             data-context="signin"
-             data-ux_mode="popup"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-        
         <!-- 登入區域 -->
         <div id="login-section">
-            <p>請先登入 Google 帳號參與抽獎</p>
-            <button id="google-login-btn" class="btn" onclick="googleOneTap()">
+            <p style="margin-bottom: 20px;">請先登入 Google 帳號參與抽獎</p>
+            <button id="google-login-btn" class="btn-google" onclick="initGoogleSignIn()">
+                <span class="google-icon"></span>
                 使用 Google 帳號登入
             </button>
         </div>
@@ -227,12 +265,15 @@
                 </div>
                 <button type="submit" class="btn btn-danger">開始抽獎</button>
             </form>
+            
+            <button class="logout-btn" onclick="logout()">登出</button>
         </div>
         
         <!-- 結果區域 -->
         <div id="result-section" class="hidden">
             <div id="result-content"></div>
             <button id="play-again-btn" class="btn btn-success hidden" onclick="resetLottery()">再抽一次</button>
+            <button class="logout-btn" onclick="logout()" style="margin-top: 15px;">登出</button>
         </div>
         
         <!-- 訊息區域 -->
@@ -245,9 +286,11 @@
     <script>
         // 配置
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwD-a-7F-Oah0IKt4MfcTbTa0FS2pqWrS573XWOtCG3NrOOMd0UB5llHSuxmA6x-cLjvg/exec';
+        const GOOGLE_CLIENT_ID = '640378175905-6e5f6beae5v8a9i8747795mjpgcmipln.apps.googleusercontent.com';
         
         // 全域變數
         let currentUser = null;
+        let isGoogleInitialized = false;
         
         // DOM 元素
         const loginSection = document.getElementById('login-section');
@@ -258,6 +301,100 @@
         const userInfo = document.getElementById('user-info');
         const resultContent = document.getElementById('result-content');
         const lotteryForm = document.getElementById('lottery-form');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        
+        // 初始化 Google 登入
+        function initGoogleSignIn() {
+            if (!isGoogleInitialized) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleCredentialResponse
+                });
+                isGoogleInitialized = true;
+            }
+            
+            // 觸發登入流程
+            google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // 如果 One Tap 無法顯示，使用彈窗登入
+                    showMessage('正在開啟 Google 登入視窗...');
+                    google.accounts.oauth2.initTokenClient({
+                        client_id: GOOGLE_CLIENT_ID,
+                        scope: 'email profile',
+                        callback: handleTokenResponse
+                    }).requestAccessToken();
+                }
+            });
+        }
+        
+        // 處理 One Tap 登入回應
+        function handleCredentialResponse(response) {
+            console.log('Google One Tap 登入成功:', response);
+            processGoogleLogin(response.credential);
+        }
+        
+        // 處理 OAuth 登入回應
+        function handleTokenResponse(tokenResponse) {
+            console.log('Google OAuth 登入成功:', tokenResponse);
+            // 使用 access token 取得用戶資訊
+            fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`)
+                .then(response => response.json())
+                .then(userData => {
+                    currentUser = {
+                        id: userData.id,
+                        email: userData.email,
+                        name: userData.name,
+                        picture: userData.picture
+                    };
+                    processUserLogin();
+                })
+                .catch(error => {
+                    console.error('取得用戶資訊錯誤:', error);
+                    showMessage('登入失敗，請重試');
+                });
+        }
+        
+        // 處理 Google 登入
+        function processGoogleLogin(credential) {
+            try {
+                const responsePayload = decodeJwtResponse(credential);
+                currentUser = {
+                    id: responsePayload.sub,
+                    email: responsePayload.email,
+                    name: responsePayload.name,
+                    picture: responsePayload.picture
+                };
+                
+                console.log('用戶資訊:', currentUser);
+                processUserLogin();
+                
+            } catch (error) {
+                console.error('處理登入回應時發生錯誤:', error);
+                showMessage('登入處理失敗，請重試');
+            }
+        }
+        
+        // 處理用戶登入後的流程
+        function processUserLogin() {
+            displayUserInfo(currentUser);
+            checkUserStatus();
+        }
+        
+        // 解碼 JWT 回應
+        function decodeJwtResponse(token) {
+            try {
+                var base64Url = token.split('.')[1];
+                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                
+                return JSON.parse(jsonPayload);
+            } catch (error) {
+                console.error('JWT 解碼錯誤:', error);
+                throw error;
+            }
+        }
         
         // 顯示載入狀態
         function showLoading() {
@@ -290,57 +427,6 @@
             setTimeout(() => {
                 messageArea.innerHTML = '';
             }, 5000);
-        }
-        
-        // 啟動 Google One Tap
-        function googleOneTap() {
-            if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.prompt();
-            } else {
-                showMessage('Google 登入服務載入中，請稍後再試');
-            }
-        }
-        
-        // 處理 Google 登入回應
-        function handleCredentialResponse(response) {
-            console.log('Google 登入成功:', response);
-            
-            try {
-                // 解碼 JWT token 取得用戶資訊
-                const responsePayload = decodeJwtResponse(response.credential);
-                currentUser = {
-                    id: responsePayload.sub,
-                    email: responsePayload.email,
-                    name: responsePayload.name,
-                    picture: responsePayload.picture
-                };
-                
-                console.log('用戶資訊:', currentUser);
-                
-                // 更新 UI
-                displayUserInfo(currentUser);
-                checkUserStatus();
-                
-            } catch (error) {
-                console.error('處理登入回應時發生錯誤:', error);
-                showMessage('登入處理失敗，請重試');
-            }
-        }
-        
-        // 解碼 JWT 回應
-        function decodeJwtResponse(token) {
-            try {
-                var base64Url = token.split('.')[1];
-                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                
-                return JSON.parse(jsonPayload);
-            } catch (error) {
-                console.error('JWT 解碼錯誤:', error);
-                throw error;
-            }
         }
         
         // 顯示用戶資訊
@@ -426,6 +512,15 @@
             resultSection.classList.remove('hidden');
         }
         
+        // 登出
+        function logout() {
+            currentUser = null;
+            if (isGoogleInitialized) {
+                google.accounts.id.disableAutoSelect();
+            }
+            resetLottery();
+        }
+        
         // 重置抽獎
         function resetLottery() {
             currentUser = null;
@@ -471,6 +566,16 @@
                 showMessage('抽獎失敗，請重試');
                 hideLoading();
                 userSection.classList.remove('hidden');
+            }
+        });
+        
+        // 頁面載入完成後初始化
+        window.addEventListener('load', function() {
+            // 檢查是否有 Google 登入服務
+            if (typeof google !== 'undefined' && google.accounts) {
+                console.log('Google Identity Services 已載入');
+            } else {
+                console.log('等待 Google Identity Services 載入...');
             }
         });
     </script>
