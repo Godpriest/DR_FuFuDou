@@ -17,6 +17,7 @@
             background: #25486e;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -302,12 +303,22 @@
             align-items: center;
             height: 100%;
             width: 100%;
+            min-height: 200px;
         }
 
         /* Google 登入按鈕樣式調整 */
         #google-signin-container iframe {
             width: 100% !important;
             max-width: 300px !important;
+        }
+
+        /* 確保登入區域正確居中 */
+        #login-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
         }
 
         /* 抽獎動畫區域 - 全螢幕覆蓋 */
@@ -1392,12 +1403,16 @@
             // 創建一個新的img元素
             const testImg = document.createElement('img');
             testImg.src = 'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif';
+            testImg.style.position = 'absolute';
+            testImg.style.top = '0';
+            testImg.style.left = '0';
             testImg.style.width = '100%';
             testImg.style.height = '100%';
             testImg.style.objectFit = 'contain';
             testImg.style.border = '3px solid #4285f4';
             testImg.style.borderRadius = '10px';
             testImg.style.background = 'rgba(66, 133, 244, 0.1)';
+            testImg.style.zIndex = '10';
             
             testImg.onload = function() {
                 console.log('✅ GIF在方形容器內載入成功！');
@@ -1409,11 +1424,15 @@
                 console.error('❌ GIF載入失敗！');
             };
             
-            // 添加到主容器內
+            // 添加到主容器內，並設置容器為相對定位
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
+                // 設置容器為相對定位，確保絕對定位的GIF在容器內
+                mainContainer.style.position = 'relative';
                 mainContainer.appendChild(testImg);
                 console.log('✅ GIF已添加到方形容器內');
+                console.log('容器位置:', mainContainer.getBoundingClientRect());
+                console.log('GIF位置:', testImg.getBoundingClientRect());
             } else {
                 console.error('❌ 找不到主容器');
                 document.body.appendChild(testImg);
