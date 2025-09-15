@@ -424,8 +424,11 @@
         <button onclick="checkFileSizes()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             📏 檢查檔案大小
         </button>
-        <button onclick="testExternalImages()" style="background: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="testExternalImages()" style="background: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🌐 外部圖片測試
+        </button>
+        <button onclick="checkLoadingScreenStatus()" style="background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🔍 檢查載入畫面
         </button>
     </div>
 
@@ -1131,17 +1134,22 @@
                 return;
             }
             
+            console.log('載入畫面元素找到:', loadingScreen);
+            console.log('當前載入畫面樣式:', loadingScreen.style.display);
+            
             // 立即開始淡出動畫
-            loadingScreen.classList.add('hidden');
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.pointerEvents = 'none';
             
             // 等待淡出動畫完成後完全隱藏
             setTimeout(() => {
-                loadingScreen.classList.add('hide-completely');
+                loadingScreen.style.display = 'none';
                 console.log('載入畫面已隱藏');
                 
                 // 顯示登入區域
                 if (loginSection) {
                     loginSection.classList.remove('hidden');
+                    console.log('登入區域已顯示');
                 }
             }, 500); // 等待CSS淡出動畫完成
         }
@@ -1150,6 +1158,43 @@
         function isImagePreloaded(src) {
             return animationImages.some(img => img.src.includes(src)) || 
                    prizeImages.some(img => img.src.includes(src));
+        }
+
+        // 檢查載入畫面狀態
+        function checkLoadingScreenStatus() {
+            console.log('=== 載入畫面狀態檢查 ===');
+            
+            if (!loadingScreen) {
+                console.error('❌ 載入畫面元素不存在');
+                return;
+            }
+            
+            console.log('✅ 載入畫面元素存在');
+            console.log('ID:', loadingScreen.id);
+            console.log('類別:', loadingScreen.className);
+            console.log('內聯樣式:', loadingScreen.style.cssText);
+            
+            const computedStyle = window.getComputedStyle(loadingScreen);
+            console.log('計算後樣式:');
+            console.log('- display:', computedStyle.display);
+            console.log('- opacity:', computedStyle.opacity);
+            console.log('- visibility:', computedStyle.visibility);
+            console.log('- pointer-events:', computedStyle.pointerEvents);
+            console.log('- z-index:', computedStyle.zIndex);
+            
+            const rect = loadingScreen.getBoundingClientRect();
+            console.log('位置和尺寸:');
+            console.log('- top:', rect.top);
+            console.log('- left:', rect.left);
+            console.log('- width:', rect.width);
+            console.log('- height:', rect.height);
+            
+            console.log('預載入狀態:');
+            console.log('- 預載入完成:', preloadComplete);
+            console.log('- 已完成素材:', completedAssets);
+            console.log('- 動畫圖片:', animationImages.length);
+            console.log('- 獎品圖片:', prizeImages.length);
+            console.log('- Logo載入:', logoLoaded);
         }
 
         // 強制重新載入GIF以觸發動畫播放
