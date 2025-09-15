@@ -21,6 +21,24 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Logo花紋背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url('images/logo_3_white.png');
+            background-repeat: repeat;
+            background-size: 120px 120px;  /* 設定適當大小 */
+            opacity: 0.04;
+            transform: rotate(30deg);
+            z-index: -1;
+            pointer-events: none;
         }
 
         /* 舊載入畫面CSS已移除 */
@@ -32,18 +50,42 @@
             padding-top: 20px;
         }
 
+        .title-with-logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .title-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.7));
+        }
+
         .page-title .lottery-title {
             color: white;
-            font-size: 36px;
+            font-size: 48px;
             font-weight: bold;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.7);
         }
 
         /* 響應式標題 */
         @media (max-width: 767px) {
             .page-title .lottery-title {
-                font-size: 28px;
+                font-size: 36px;
+            }
+            
+            .title-with-logos {
+                gap: 15px;
+            }
+            
+            .title-logo {
+                width: 80px;
+                height: 80px;
+                filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.7));
             }
         }
 
@@ -56,7 +98,7 @@
             height: 90vw;
             max-width: 500px;
             max-height: 500px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.7);
             text-align: center;
             color: #333;
             position: relative;
@@ -296,16 +338,6 @@
             background: #c82333;
         }
 
-        /* Google 登入按鈕容器 */
-        #google-signin-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            min-height: 200px;
-        }
-
         /* Google 登入按鈕容器 - 簡化設定 */
         #google-signin-container {
             width: 100%;
@@ -425,9 +457,6 @@
         <button onclick="checkContainerSize()" style="background: #6c5ce7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             📏 檢查容器尺寸
         </button>
-        <button onclick="adjustGoogleButtonSize()" style="background: #00b894; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🔧 調整按鈕大小
-        </button>
         <button onclick="createCustomGoogleButton()" style="background: #e17055; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
             🎨 自訂按鈕
         </button>
@@ -444,7 +473,11 @@
 
     <!-- 標題區域 -->
     <div class="page-title">
-        <h1 class="lottery-title">福福堂開幕抽獎活動</h1>
+        <div class="title-with-logos">
+            <img src="images/logo_1_white.png" alt="福福堂" class="title-logo">
+            <h1 class="lottery-title">開幕抽獎</h1>
+            <img src="images/logo_1_white.png" alt="福福堂" class="title-logo">
+        </div>
     </div>
 
     <!-- 主容器 -->
@@ -589,6 +622,7 @@
                 showMessage('登入處理失敗，請重試');
             }
         }
+
         
         // 解碼 JWT 回應
         function decodeJwtResponse(token) {
@@ -606,7 +640,7 @@
             }
         }
         
-        // 初始化 Google 登入按鈕
+        // 初始化 Google 登入按鈕 - 簡化版本，不修改定位
         function initializeGoogleSignIn() {
             if (typeof google !== 'undefined' && google.accounts) {
                 google.accounts.id.initialize({
@@ -614,39 +648,20 @@
                     callback: handleCredentialResponse
                 });
                 
-                // 計算容器寬度並限制在Google允許的範圍內
-                const containerRect = googleSigninContainer.getBoundingClientRect();
-                const maxAllowedWidth = Math.min(Math.max(containerRect.width * 0.9, 240), 400);
-                
-                console.log('容器寬度:', containerRect.width);
-                console.log('計算的按鈕寬度:', maxAllowedWidth);
-                
-                // 渲染自訂的 Google 登入按鈕
+                // 使用Google預設設定渲染按鈕，設定寬度為400px
                 google.accounts.id.renderButton(
                     googleSigninContainer,
                     {
                         theme: 'filled_blue',
                         size: 'large',
-                        width: maxAllowedWidth,
+                        width: 400,
                         text: 'signin_with',
                         shape: 'rectangular',
                         logo_alignment: 'left'
                     }
                 );
                 
-                console.log('Google 登入按鈕已初始化');
-                
-                // 等待按鈕完全載入後調整大小和位置
-                setTimeout(() => {
-                    console.log('開始調整Google按鈕大小和位置...');
-                    adjustGoogleButtonSize();
-                    
-                    // 立即重新居中按鈕（防止Google renderButton影響位置）
-                    setTimeout(() => {
-                        console.log('重新居中Google按鈕（Google渲染後）...');
-                        ensureGoogleButtonCentered();
-                    }, 100);
-                }, 1000);
+                console.log('Google 登入按鈕已初始化（使用預設設定）');
             } else {
                 console.log('等待 Google Identity Services 載入...');
                 setTimeout(initializeGoogleSignIn, 100);
@@ -1174,15 +1189,7 @@
                     loginSection.classList.remove('hidden');
                     console.log('登入區域已顯示');
                     
-                    // 強制重新居中Google按鈕（防止載入畫面隱藏影響定位）
-                    setTimeout(() => {
-                        console.log('重新居中Google按鈕...');
-                        loginSection.style.position = 'absolute';
-                        loginSection.style.top = '50%';
-                        loginSection.style.left = '50%';
-                        loginSection.style.transform = 'translate(-50%, -50%)';
-                        console.log('Google按鈕已重新居中');
-                    }, 100);
+                    console.log('登入區域已顯示，保持原始定位');
                 }
             }, 500); // 等待CSS淡出動畫完成
         }
@@ -1279,13 +1286,6 @@
             document.head.appendChild(style);
             
             console.log('✅ Google按鈕尺寸調整完成');
-            console.log('使用了3種方法設定尺寸，保持定位不變');
-            
-            // 立即重新居中按鈕（防止尺寸調整影響位置）
-            setTimeout(() => {
-                console.log('重新居中Google按鈕（尺寸調整後）...');
-                ensureGoogleButtonCentered();
-            }, 50);
         }
 
         // 創建自訂Google登入按鈕 - 可正常使用
@@ -1865,44 +1865,7 @@
             console.log('Pathname:', window.location.pathname);
         }
         
-        // 確保Google按鈕始終居中的函數
-        function ensureGoogleButtonCentered() {
-            const loginSection = document.getElementById('login-section');
-            if (loginSection && !loginSection.classList.contains('hidden')) {
-                console.log('確保Google按鈕居中...');
-                loginSection.style.position = 'absolute';
-                loginSection.style.top = '50%';
-                loginSection.style.left = '50%';
-                loginSection.style.transform = 'translate(-50%, -50%)';
-                loginSection.style.zIndex = '10';
-                loginSection.style.width = 'auto';
-                loginSection.style.height = 'auto';
-            }
-        }
-
-        // 監聽Google按鈕容器的DOM變化
-        function setupGoogleButtonObserver() {
-            const googleContainer = document.getElementById('google-signin-container');
-            if (!googleContainer) return;
-
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                        console.log('Google按鈕容器DOM發生變化，重新居中...');
-                        setTimeout(() => {
-                            ensureGoogleButtonCentered();
-                        }, 100);
-                    }
-                });
-            });
-
-            observer.observe(googleContainer, {
-                childList: true,
-                subtree: true
-            });
-
-            console.log('Google按鈕DOM變化監聽器已設置');
-        }
+        // 移除所有會修改Google按鈕位置的函數
 
         // 頁面載入完成後初始化
         window.addEventListener('load', function() {
@@ -1925,17 +1888,6 @@
             
             // 開始檢查預載入狀態
             initGoogleSignIn();
-            
-            // 設置Google按鈕DOM變化監聽器
-            setTimeout(() => {
-                setupGoogleButtonObserver();
-            }, 500);
-            
-            // 監聽窗口大小變化，確保按鈕始終居中
-            window.addEventListener('resize', ensureGoogleButtonCentered);
-            
-            // 定期檢查並確保按鈕居中（防止其他因素影響）
-            setInterval(ensureGoogleButtonCentered, 2000);
         });
     </script>
 </body>
