@@ -24,6 +24,28 @@
 
         /* 舊載入畫面CSS已移除 */
 
+        /* 頁面標題區域 */
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .page-title .lottery-title {
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 響應式標題 */
+        @media (max-width: 767px) {
+            .page-title .lottery-title {
+                font-size: 28px;
+            }
+        }
+
         /* 主容器 - 響應式正方形設計 */
         .main-container {
             background: rgba(255, 255, 255, 0.95);
@@ -64,33 +86,7 @@
             }
         }
 
-        .lottery-title {
-            font-size: 28px;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            font-weight: bold;
-        }
-
-        /* 響應式標題 */
-        @media (max-width: 767px) {
-            .lottery-title {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-        }
-
-        .lottery-subtitle {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 767px) {
-            .lottery-subtitle {
-                font-size: 14px;
-                margin-bottom: 20px;
-            }
-        }
+        /* 主容器內的標題樣式已移除，標題現在在容器外部 */
 
         .btn {
             background: #4285f4;
@@ -301,7 +297,17 @@
 
         /* Google 登入按鈕容器 */
         #google-signin-container {
-            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Google 登入按鈕樣式調整 */
+        #google-signin-container iframe {
+            width: 100% !important;
+            max-width: 300px !important;
         }
 
         /* 抽獎動畫區域 - 全螢幕覆蓋 */
@@ -411,14 +417,15 @@
         </div>
     </div>
 
+    <!-- 標題區域 -->
+    <div class="page-title">
+        <h1 class="lottery-title">福福堂開幕抽獎活動</h1>
+    </div>
+
     <!-- 主容器 -->
     <div class="main-container">
-        <h1 class="lottery-title">🎉 福福堂開幕抽獎活動 🎉</h1>
-        <p class="lottery-subtitle">福福堂開幕慶祝抽獎活動</p>
-        
         <!-- 登入區域 -->
         <div id="login-section" class="hidden">
-            <p style="margin-bottom: 20px;">請先登入 Google 帳號參與抽獎</p>
             <!-- Google 登入按鈕將在這裡渲染 -->
             <div id="google-signin-container"></div>
         </div>
@@ -982,13 +989,12 @@
         function preloadAllAssets() {
             console.log('開始預載入所有素材...');
             
-            // 預載入動畫 GIF (只有2個，1920x1080) - 使用PostImages
-            const animationUrls = [
-                'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif',
-                'https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif'
+            // 1. 優先載入Logo (載入畫面需要使用)
+            const logoUrls = [
+                'images/logo_1_white.png'
             ];
             
-            // 預載入獎品圖片 (4個獎品)
+            // 2. 載入獎品圖片 (4個獎品)
             const prizeUrls = [
                 'images/prizes/fishball.png',
                 'images/prizes/hot_soup.png',
@@ -996,38 +1002,41 @@
                 'images/prizes/shaved_ice.png'
             ];
 
-            // 預載入其他圖片
-            const otherImages = [
-                'images/logo_1_white.png'
+            // 3. 最後載入動畫 GIF (只有2個，1920x1080) - 使用PostImages
+            const animationUrls = [
+                'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif',
+                'https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif'
             ];
             
-            let totalAssets = animationUrls.length + prizeUrls.length + otherImages.length;
+            let totalAssets = logoUrls.length + prizeUrls.length + animationUrls.length;
             // 重置計數器
             completedAssets = 0;
             logoLoaded = false;
             
             console.log(`總共需要載入 ${totalAssets} 個素材`);
+            console.log('載入順序: Logo → 獎品PNG → 動畫GIF');
             
-            // 載入動畫圖片
-            animationUrls.forEach((url, index) => {
+            // 1. 優先載入Logo
+            logoUrls.forEach((url, index) => {
                 const img = new Image();
                 img.onload = () => {
-                    animationImages.push(img);
+                    logoLoaded = true;
                     completedAssets++;
-                    console.log(`✅ 動畫圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
+                    console.log(`✅ Logo載入完成: ${url} (${completedAssets}/${totalAssets})`);
                     updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
+                    logoLoaded = true; // 即使失敗也算完成
                     completedAssets++;
-                    console.warn(`❌ 動畫圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
+                    console.warn(`❌ Logo載入失敗: ${url} (${completedAssets}/${totalAssets})`);
                     updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.src = url;
             });
             
-            // 載入獎品圖片
+            // 2. 載入獎品圖片
             prizeUrls.forEach((url, index) => {
                 const img = new Image();
                 img.onload = () => {
@@ -1046,20 +1055,19 @@
                 img.src = url;
             });
 
-            // 載入其他圖片
-            otherImages.forEach((url, index) => {
+            // 3. 最後載入動畫圖片
+            animationUrls.forEach((url, index) => {
                 const img = new Image();
                 img.onload = () => {
-                    logoLoaded = true;
+                    animationImages.push(img);
                     completedAssets++;
-                    console.log(`✅ 其他圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
+                    console.log(`✅ 動畫圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
                     updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
-                    logoLoaded = true; // 即使失敗也算完成
                     completedAssets++;
-                    console.warn(`❌ 其他圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
+                    console.warn(`❌ 動畫圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
                     updateLoadingProgress();
                     checkPreloadComplete();
                 };
@@ -1069,21 +1077,22 @@
 
         // 更新載入進度顯示
         function updateLoadingProgress() {
-            const totalAssets = 7; // 2個動畫 + 4個獎品 + 1個logo
+            const totalAssets = 7; // 1個logo + 4個獎品 + 2個動畫
             
             if (loadingProgress) {
                 loadingProgress.textContent = `(${completedAssets}/${totalAssets})`;
             }
             
             console.log(`預載入進度: ${completedAssets}/${totalAssets}`);
-            console.log(`動畫圖片: ${animationImages.length}/2`);
-            console.log(`獎品圖片: ${prizeImages.length}/4`);
+            console.log(`載入順序: Logo → 獎品PNG → 動畫GIF`);
             console.log(`Logo載入: ${logoLoaded ? '是' : '否'}`);
+            console.log(`獎品圖片: ${prizeImages.length}/4`);
+            console.log(`動畫圖片: ${animationImages.length}/2`);
         }
 
         // 檢查預載入是否完成
         function checkPreloadComplete() {
-            const totalAssets = 7; // 2個動畫 + 4個獎品 + 1個logo
+            const totalAssets = 7; // 1個logo + 4個獎品 + 2個動畫
             
             // 更新進度顯示
             updateLoadingProgress();
@@ -1370,43 +1379,58 @@
             }
         }
 
-        // 最簡單的GIF測試
+        // 最簡單的GIF測試 - 在方形容器內播放
         function simpleGifTest() {
-            console.log('=== 最簡單GIF測試 ===');
+            console.log('=== 方形容器內GIF測試 ===');
+            
+            // 隱藏登入區域
+            const loginSection = document.getElementById('login-section');
+            if (loginSection) {
+                loginSection.style.display = 'none';
+            }
             
             // 創建一個新的img元素
             const testImg = document.createElement('img');
             testImg.src = 'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif';
-            testImg.style.position = 'fixed';
-            testImg.style.top = '50%';
-            testImg.style.left = '50%';
-            testImg.style.transform = 'translate(-50%, -50%)';
-            testImg.style.width = '80vw';
-            testImg.style.height = '80vh';
+            testImg.style.width = '100%';
+            testImg.style.height = '100%';
             testImg.style.objectFit = 'contain';
-            testImg.style.zIndex = '10000';
-            testImg.style.border = '5px solid red';
-            testImg.style.background = 'white';
+            testImg.style.border = '3px solid #4285f4';
+            testImg.style.borderRadius = '10px';
+            testImg.style.background = 'rgba(66, 133, 244, 0.1)';
             
             testImg.onload = function() {
-                console.log('GIF載入成功！');
+                console.log('✅ GIF在方形容器內載入成功！');
                 console.log('尺寸:', this.naturalWidth, 'x', this.naturalHeight);
+                console.log('容器尺寸:', testImg.offsetWidth, 'x', testImg.offsetHeight);
             };
             
             testImg.onerror = function() {
-                console.error('GIF載入失敗！');
+                console.error('❌ GIF載入失敗！');
             };
             
-            // 添加到頁面
-            document.body.appendChild(testImg);
-            console.log('GIF已添加到頁面');
+            // 添加到主容器內
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                mainContainer.appendChild(testImg);
+                console.log('✅ GIF已添加到方形容器內');
+            } else {
+                console.error('❌ 找不到主容器');
+                document.body.appendChild(testImg);
+            }
             
-            // 5秒後移除
+            // 5秒後移除並恢復登入按鈕
             setTimeout(() => {
                 if (testImg.parentNode) {
                     testImg.parentNode.removeChild(testImg);
-                    console.log('測試GIF已移除');
+                    console.log('✅ 測試GIF已移除');
                 }
+                
+                // 恢復顯示登入區域
+                if (loginSection) {
+                    loginSection.style.display = 'flex';
+                }
+                console.log('✅ 登入按鈕已恢復顯示');
             }, 5000);
         }
 
