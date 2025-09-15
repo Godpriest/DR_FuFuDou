@@ -427,8 +427,11 @@
         <button onclick="testExternalImages()" style="background: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🌐 外部圖片測試
         </button>
-        <button onclick="checkLoadingScreenStatus()" style="background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="checkLoadingScreenStatus()" style="background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🔍 檢查載入畫面
+        </button>
+        <button onclick="forceHideLoadingScreen()" style="background: #d63031; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🚫 強制隱藏載入畫面
         </button>
     </div>
 
@@ -1197,6 +1200,37 @@
             console.log('- Logo載入:', logoLoaded);
         }
 
+        // 強制隱藏載入畫面
+        function forceHideLoadingScreen() {
+            console.log('🚫 強制隱藏載入畫面...');
+            
+            if (!loadingScreen) {
+                console.error('❌ 載入畫面元素不存在');
+                return;
+            }
+            
+            // 強制移除所有可能的樣式衝突
+            loadingScreen.style.display = 'none !important';
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.visibility = 'hidden';
+            loadingScreen.style.pointerEvents = 'none';
+            loadingScreen.style.zIndex = '-1';
+            
+            // 移除所有類別
+            loadingScreen.className = '';
+            
+            // 強制顯示登入區域
+            if (loginSection) {
+                loginSection.style.display = 'block';
+                loginSection.style.opacity = '1';
+                loginSection.style.visibility = 'visible';
+                loginSection.classList.remove('hidden');
+            }
+            
+            console.log('✅ 載入畫面已強制隱藏');
+            console.log('✅ 登入區域已強制顯示');
+        }
+
         // 強制重新載入GIF以觸發動畫播放
         function forceGifPlay(gifElement, src) {
             console.log('強制播放GIF:', src);
@@ -1585,23 +1619,25 @@
         
         // 頁面載入完成後初始化
         window.addEventListener('load', function() {
+            console.log('頁面載入完成，開始初始化...');
+            
             // 立即開始預載入所有素材
             preloadAllAssets();
             
             // 初始化 Google 登入（在預載入完成後）
-            setTimeout(() => {
+            // 移除固定延遲，改為等待預載入完成
+            const initGoogleSignIn = () => {
                 if (preloadComplete) {
+                    console.log('預載入完成，初始化Google登入...');
                     initializeGoogleSignIn();
                 } else {
-                    // 如果預載入還沒完成，等待完成後再初始化
-                    const checkInterval = setInterval(() => {
-                        if (preloadComplete) {
-                            initializeGoogleSignIn();
-                            clearInterval(checkInterval);
-                        }
-                    }, 100);
+                    console.log('等待預載入完成...');
+                    setTimeout(initGoogleSignIn, 100);
                 }
-            }, 500);
+            };
+            
+            // 開始檢查預載入狀態
+            initGoogleSignIn();
         });
     </script>
 </body>
