@@ -315,14 +315,14 @@
             align-items: center;
         }
 
-        /* 登入區域 - 使用flexbox居中，避免絕對定位 */
+        /* 確保登入區域正確居中 */
         #login-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            position: relative;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: auto;
+            height: auto;
         }
 
         /* 抽獎動畫區域 - 全螢幕覆蓋 */
@@ -1233,36 +1233,23 @@
             
             console.log('目標尺寸:', { width: targetWidth + 'px', height: targetHeight + 'px' });
             
-            // 方法1: 直接設定style屬性
-            googleContainer.style.cssText = `
-                width: 100% !important;
-                height: ${targetHeight}px !important;
-                max-width: none !important;
-            `;
+            // 方法1: 只調整尺寸，不影響定位
+            googleContainer.style.width = '100%';
+            googleContainer.style.height = `${targetHeight}px`;
+            googleContainer.style.maxWidth = 'none';
             
-            // 方法2: 尋找並強制修改所有相關元素
+            // 方法2: 只調整按鈕內部元素的尺寸，不影響定位
             const allElements = googleContainer.querySelectorAll('*');
             allElements.forEach((element, index) => {
-                element.style.cssText = `
-                    width: ${targetWidth}px !important;
-                    height: ${targetHeight}px !important;
-                    max-width: none !important;
-                    min-width: ${targetWidth}px !important;
-                `;
-                console.log(`✅ 元素 ${index} 尺寸已強制設定`);
+                // 只設定尺寸相關的屬性，不覆蓋定位
+                element.style.width = `${targetWidth}px`;
+                element.style.height = `${targetHeight}px`;
+                element.style.maxWidth = 'none';
+                element.style.minWidth = `${targetWidth}px`;
+                console.log(`✅ 元素 ${index} 尺寸已設定`);
             });
             
-            // 方法3: 使用setAttribute強制覆蓋
-            allElements.forEach(element => {
-                element.setAttribute('style', `
-                    width: ${targetWidth}px !important;
-                    height: ${targetHeight}px !important;
-                    max-width: none !important;
-                    min-width: ${targetWidth}px !important;
-                `);
-            });
-            
-            // 方法4: 創建新的CSS規則
+            // 方法3: 創建新的CSS規則，只影響尺寸
             const style = document.createElement('style');
             style.textContent = `
                 #google-signin-container * {
@@ -1274,8 +1261,8 @@
             `;
             document.head.appendChild(style);
             
-            console.log('✅ Google按鈕尺寸強力調整完成');
-            console.log('使用了4種方法強制設定尺寸');
+            console.log('✅ Google按鈕尺寸調整完成');
+            console.log('使用了3種方法設定尺寸，保持定位不變');
         }
 
         // 創建自訂Google登入按鈕 - 可正常使用
