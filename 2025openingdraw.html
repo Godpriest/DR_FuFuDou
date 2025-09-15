@@ -276,6 +276,11 @@
             100% { transform: rotate(360deg); }
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
         .error-message {
             background: #f8d7da;
             color: #721c24;
@@ -295,7 +300,8 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
+            opacity: 0;
         }
 
         .google-icon {
@@ -419,6 +425,14 @@
         </button>
     </div>
 
+    <!-- 預載入載入畫面 -->
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #25486e; display: flex; align-items: center; justify-content: center; z-index: 10000; transition: opacity 0.5s ease;">
+        <div style="text-align: center; color: white;">
+            <img src="images/logo_1_white.png" alt="福福堂" style="width: 120px; height: 120px; margin-bottom: 20px; animation: pulse 1.5s ease-in-out infinite;">
+            <p style="font-size: 18px; margin: 0;">載入中...</p>
+        </div>
+    </div>
+
     <!-- 主容器 -->
     <div class="main-container">
         <h1 class="lottery-title">🎉 福福堂開幕抽獎活動 🎉</h1>
@@ -522,6 +536,8 @@
         let animationImages = []; // 預載入的動畫圖片
         let prizeImages = []; // 預載入的獎品圖片
         let preloadComplete = false; // 預載入完成標記
+        let completedAssets = 0; // 已完成的載入數量
+        let logoLoaded = false; // Logo是否已載入
         
         // DOM 元素
         const loadingScreen = document.getElementById('loading-screen');
@@ -704,7 +720,7 @@
             }
         }
         
-        // 顯示抽獎動畫和結果
+        // 顯示抽獎動畫和結果 - 使用動態創建方法
         function showLotteryAnimationWithResult(lotteryResult) {
             console.log('開始顯示抽獎動畫...');
             hideAllSections();
@@ -714,47 +730,63 @@
             const randomAnimation = getRandomAnimationGif();
             console.log('選擇的動畫:', randomAnimation);
             
-            // 隱藏所有動畫元素
+            // 隱藏所有預置的動畫元素
             hideAllAnimationElements();
             
-            // 選擇要播放的GIF
-            const selectedGifId = randomAnimation === 'lottery-animation-1.gif' ? 'gif-animation-1' : 'gif-animation-2';
-            const selectedGif = document.getElementById(selectedGifId);
+            // 構建動畫URL
+            const animationSrc = randomAnimation === 'lottery-animation-1.gif' 
+                ? 'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif'
+                : 'https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif';
+            
+            console.log('動畫URL:', animationSrc);
+            
+            // 使用動態創建方法（和簡單測試一樣的成功方法）
+            const dynamicGif = document.createElement('img');
+            dynamicGif.style.position = 'absolute';
+            dynamicGif.style.top = '0';
+            dynamicGif.style.left = '0';
+            dynamicGif.style.width = '100vw';
+            dynamicGif.style.height = '100vh';
+            dynamicGif.style.objectFit = 'contain';
+            dynamicGif.style.zIndex = '100';
+            dynamicGif.style.display = 'block';
+            dynamicGif.style.opacity = '1';
+            
+            // 添加到動畫容器
+            const animationContainer = document.getElementById('animation-container');
+            animationContainer.appendChild(dynamicGif);
+            
+            // 載入GIF
+            dynamicGif.onload = function() {
+                console.log('✅ 抽獎GIF載入成功！');
+                console.log('尺寸:', this.naturalWidth, 'x', this.naturalHeight);
+            };
+            
+            dynamicGif.onerror = function() {
+                console.error('❌ 抽獎GIF載入失敗！');
+                // 如果GIF載入失敗，直接跳過動畫
+                setTimeout(() => {
+                    hideLotteryAnimation();
+                    displayResult(lotteryResult);
+                }, 1000);
+            };
+            
+            dynamicGif.src = animationSrc;
+            console.log('動態GIF已創建並開始載入');
             
             // 選擇對應的獎品圖片
             const prizeImageId = getPrizeImageId(lotteryResult.imageFile);
             const selectedPrize = document.getElementById(prizeImageId);
             
-            console.log('選擇的GIF元素:', selectedGifId);
             console.log('選擇的獎品元素:', prizeImageId);
-            
-            // 顯示載入指示器
-            const loadingIndicator = document.getElementById('loading-indicator');
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'block';
-            }
-            
-            // 立即顯示選中的GIF
-            if (selectedGif) {
-                selectedGif.style.display = 'block';
-                selectedGif.style.opacity = '1';
-                
-                console.log('GIF開始播放:', selectedGif.src);
-                
-                // 隱藏載入指示器
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-            }
             
             // 5秒時切換到獎品顯示
             setTimeout(() => {
                 console.log('5秒：切換到獎品顯示');
                 
-                // 隱藏GIF
-                if (selectedGif) {
-                    selectedGif.style.display = 'none';
-                    selectedGif.style.opacity = '0';
+                // 移除動態GIF
+                if (dynamicGif.parentNode) {
+                    dynamicGif.parentNode.removeChild(dynamicGif);
                 }
                 
                 // 顯示獎品並開始動畫
@@ -762,6 +794,8 @@
                     selectedPrize.style.display = 'block';
                     selectedPrize.classList.add('animate');
                     console.log('獎品動畫開始');
+                } else {
+                    console.warn('找不到獎品圖片元素');
                 }
             }, 5000);
             
@@ -989,53 +1023,59 @@
             ];
             
             let totalAssets = animationUrls.length + prizeUrls.length + otherImages.length;
-            let loadedAssets = 0;
+            // 重置計數器
+            completedAssets = 0;
+            logoLoaded = false;
+            
+            console.log(`總共需要載入 ${totalAssets} 個素材`);
             
             // 載入動畫圖片
-            animationUrls.forEach(url => {
+            animationUrls.forEach((url, index) => {
                 const img = new Image();
                 img.onload = () => {
                     animationImages.push(img);
-                    loadedAssets++;
-                    console.log(`動畫圖片載入完成: ${url} (${loadedAssets}/${totalAssets})`);
+                    completedAssets++;
+                    console.log(`✅ 動畫圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
-                    loadedAssets++;
-                    console.warn(`動畫圖片載入失敗: ${url} (${loadedAssets}/${totalAssets})`);
+                    completedAssets++;
+                    console.warn(`❌ 動畫圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
                     checkPreloadComplete();
                 };
                 img.src = url;
             });
             
             // 載入獎品圖片
-            prizeUrls.forEach(url => {
+            prizeUrls.forEach((url, index) => {
                 const img = new Image();
                 img.onload = () => {
                     prizeImages.push(img);
-                    loadedAssets++;
-                    console.log(`獎品圖片載入完成: ${url} (${loadedAssets}/${totalAssets})`);
+                    completedAssets++;
+                    console.log(`✅ 獎品圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
-                    loadedAssets++;
-                    console.warn(`獎品圖片載入失敗: ${url} (${loadedAssets}/${totalAssets})`);
+                    completedAssets++;
+                    console.warn(`❌ 獎品圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
                     checkPreloadComplete();
                 };
                 img.src = url;
             });
 
             // 載入其他圖片
-            otherImages.forEach(url => {
+            otherImages.forEach((url, index) => {
                 const img = new Image();
                 img.onload = () => {
-                    loadedAssets++;
-                    console.log(`其他圖片載入完成: ${url} (${loadedAssets}/${totalAssets})`);
+                    logoLoaded = true;
+                    completedAssets++;
+                    console.log(`✅ 其他圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
-                    loadedAssets++;
-                    console.warn(`其他圖片載入失敗: ${url} (${loadedAssets}/${totalAssets})`);
+                    logoLoaded = true; // 即使失敗也算完成
+                    completedAssets++;
+                    console.warn(`❌ 其他圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
                     checkPreloadComplete();
                 };
                 img.src = url;
@@ -1045,23 +1085,31 @@
         // 檢查預載入是否完成
         function checkPreloadComplete() {
             const totalAssets = 7; // 2個動畫 + 4個獎品 + 1個logo
-            const loadedAssets = animationImages.length + prizeImages.length + 1; // +1 for logo
             
-            if (loadedAssets >= totalAssets && !preloadComplete) {
+            console.log(`預載入進度: ${completedAssets}/${totalAssets}`);
+            console.log(`動畫圖片: ${animationImages.length}/2`);
+            console.log(`獎品圖片: ${prizeImages.length}/4`);
+            console.log(`Logo載入: ${logoLoaded ? '是' : '否'}`);
+            
+            if (completedAssets >= totalAssets && !preloadComplete) {
                 preloadComplete = true;
-                console.log('所有素材預載入完成！');
+                console.log('🎉 所有素材預載入完成！');
                 hideLoadingScreen();
             }
         }
 
         // 隱藏載入畫面
         function hideLoadingScreen() {
+            console.log('準備隱藏載入畫面...');
+            
+            // 立即開始淡出動畫，不等待固定時間
+            loadingScreen.classList.add('hidden');
+            
+            // 等待淡出動畫完成後完全隱藏
             setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500); // 等待淡出動畫完成
-            }, 1000); // 至少顯示1秒載入畫面
+                loadingScreen.style.display = 'none';
+                console.log('載入畫面已隱藏');
+            }, 500); // 等待CSS淡出動畫完成
         }
         
         // 檢查圖片是否已預載入
