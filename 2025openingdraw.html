@@ -314,11 +314,12 @@
 
         /* 確保登入區域正確居中 */
         #login-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            flex: 1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: auto;
+            height: auto;
         }
 
         /* 抽獎動畫區域 - 全螢幕覆蓋 */
@@ -1409,7 +1410,8 @@
             testImg.style.width = '100%';
             testImg.style.height = '100%';
             testImg.style.objectFit = 'cover';  // 改為cover，讓GIF填滿容器
-            testImg.style.objectPosition = 'center top';  // 對齊到上方
+            testImg.style.objectPosition = 'center top';  // 對齊到上方，水平居中
+            testImg.style.margin = '0 auto';  // 強制水平居中
             testImg.style.border = '3px solid #4285f4';
             testImg.style.borderRadius = '10px';
             testImg.style.background = 'rgba(66, 133, 244, 0.1)';
@@ -1417,8 +1419,15 @@
             
             testImg.onload = function() {
                 console.log('✅ GIF在方形容器內載入成功！');
-                console.log('尺寸:', this.naturalWidth, 'x', this.naturalHeight);
+                console.log('GIF原始尺寸:', this.naturalWidth, 'x', this.naturalHeight);
                 console.log('容器尺寸:', testImg.offsetWidth, 'x', testImg.offsetHeight);
+                
+                // 檢查容器和GIF的位置
+                const containerRect = mainContainer.getBoundingClientRect();
+                const gifRect = testImg.getBoundingClientRect();
+                console.log('容器位置:', containerRect);
+                console.log('GIF位置:', gifRect);
+                console.log('GIF是否水平居中:', Math.abs(gifRect.left - containerRect.left) < 5);
             };
             
             testImg.onerror = function() {
