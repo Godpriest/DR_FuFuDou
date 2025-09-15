@@ -306,49 +306,21 @@
             min-height: 200px;
         }
 
-        /* Google 登入按鈕樣式調整 - 強力覆蓋 */
+        /* Google 登入按鈕樣式調整 - 統一設定 */
         #google-signin-container {
             width: 100% !important;
             max-width: none !important;
+            height: auto !important;
         }
         
-        #google-signin-container iframe {
-            width: 90% !important;
-            max-width: none !important;
-            height: 60px !important;
-            min-width: 300px !important;
-        }
-        
-        /* 強力覆蓋Google內部CSS */
+        /* 針對所有Google相關元素 */
+        #google-signin-container iframe,
+        #google-signin-container div,
         #google-signin-container * {
             width: 100% !important;
             max-width: none !important;
-        }
-        
-        /* 針對Google登入按鈕的內部元素 */
-        #google-signin-container div[role="button"] {
-            width: 90% !important;
-            max-width: none !important;
-            height: 60px !important;
-        }
-        
-        /* 更強力的Google按鈕寬度覆蓋 */
-        #google-signin-container iframe[src*="accounts.google.com"] {
-            width: 90% !important;
-            min-width: 350px !important;
-            height: 60px !important;
-        }
-        
-        /* 針對Google Identity Services的按鈕 */
-        #google-signin-container > div {
-            width: 90% !important;
-            max-width: none !important;
-        }
-        
-        /* 最終強制覆蓋 */
-        #google-signin-container * {
-            width: 90% !important;
-            max-width: none !important;
+            min-width: 600px !important;
+            height: 100px !important;
         }
 
         /* 確保登入區域正確居中 */
@@ -460,8 +432,11 @@
         <button onclick="checkContainerSize()" style="background: #6c5ce7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             📏 檢查容器尺寸
         </button>
-        <button onclick="adjustGoogleButtonSize()" style="background: #00b894; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="adjustGoogleButtonSize()" style="background: #00b894; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🔧 調整按鈕大小
+        </button>
+        <button onclick="forceGoogleButtonSize()" style="background: #e17055; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🚀 激進調整
         </button>
     </div>
 
@@ -1240,7 +1215,7 @@
             };
         }
 
-        // 動態調整Google登入按鈕大小
+        // 動態調整Google登入按鈕大小 - 強力版本
         function adjustGoogleButtonSize() {
             const containerSize = checkContainerSize();
             if (!containerSize) return;
@@ -1251,45 +1226,99 @@
                 return;
             }
             
-            console.log('=== 動態調整Google按鈕大小 ===');
+            console.log('=== 強力調整Google按鈕大小 ===');
             console.log('容器尺寸:', containerSize);
-            console.log('建議按鈕尺寸:', {
-                width: containerSize.suggestedButtonWidth + 'px',
-                height: containerSize.suggestedButtonHeight + 'px'
-            });
             
-            // 強制設定容器和按鈕尺寸
-            googleContainer.style.width = '100%';
-            googleContainer.style.height = containerSize.suggestedButtonHeight + 'px';
+            const targetWidth = containerSize.suggestedButtonWidth;
+            const targetHeight = containerSize.suggestedButtonHeight;
             
-            // 尋找Google按鈕的iframe
-            const googleIframe = googleContainer.querySelector('iframe');
-            if (googleIframe) {
-                googleIframe.style.width = containerSize.suggestedButtonWidth + 'px';
-                googleIframe.style.height = containerSize.suggestedButtonHeight + 'px';
-                googleIframe.style.minWidth = containerSize.suggestedButtonWidth + 'px';
-                googleIframe.style.maxWidth = 'none';
-                console.log('✅ iframe尺寸已調整');
-            }
+            console.log('目標尺寸:', { width: targetWidth + 'px', height: targetHeight + 'px' });
             
-            // 尋找Google按鈕的div
-            const googleButton = googleContainer.querySelector('div[role="button"]');
-            if (googleButton) {
-                googleButton.style.width = containerSize.suggestedButtonWidth + 'px';
-                googleButton.style.height = containerSize.suggestedButtonHeight + 'px';
-                googleButton.style.minWidth = containerSize.suggestedButtonWidth + 'px';
-                googleButton.style.maxWidth = 'none';
-                console.log('✅ 按鈕div尺寸已調整');
-            }
+            // 方法1: 直接設定style屬性
+            googleContainer.style.cssText = `
+                width: 100% !important;
+                height: ${targetHeight}px !important;
+                max-width: none !important;
+            `;
             
-            // 強制所有子元素
+            // 方法2: 尋找並強制修改所有相關元素
             const allElements = googleContainer.querySelectorAll('*');
-            allElements.forEach(element => {
-                element.style.width = containerSize.suggestedButtonWidth + 'px';
-                element.style.maxWidth = 'none';
+            allElements.forEach((element, index) => {
+                element.style.cssText = `
+                    width: ${targetWidth}px !important;
+                    height: ${targetHeight}px !important;
+                    max-width: none !important;
+                    min-width: ${targetWidth}px !important;
+                `;
+                console.log(`✅ 元素 ${index} 尺寸已強制設定`);
             });
             
-            console.log('✅ Google按鈕尺寸調整完成');
+            // 方法3: 使用setAttribute強制覆蓋
+            allElements.forEach(element => {
+                element.setAttribute('style', `
+                    width: ${targetWidth}px !important;
+                    height: ${targetHeight}px !important;
+                    max-width: none !important;
+                    min-width: ${targetWidth}px !important;
+                `);
+            });
+            
+            // 方法4: 創建新的CSS規則
+            const style = document.createElement('style');
+            style.textContent = `
+                #google-signin-container * {
+                    width: ${targetWidth}px !important;
+                    height: ${targetHeight}px !important;
+                    max-width: none !important;
+                    min-width: ${targetWidth}px !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            console.log('✅ Google按鈕尺寸強力調整完成');
+            console.log('使用了4種方法強制設定尺寸');
+        }
+
+        // 激進的Google按鈕大小調整 - 最後手段
+        function forceGoogleButtonSize() {
+            console.log('🚀 激進調整Google按鈕大小...');
+            
+            const googleContainer = document.getElementById('google-signin-container');
+            if (!googleContainer) {
+                console.error('找不到Google登入容器！');
+                return;
+            }
+            
+            // 完全重新創建容器
+            const newContainer = document.createElement('div');
+            newContainer.id = 'google-signin-container';
+            newContainer.style.cssText = `
+                width: 600px !important;
+                height: 100px !important;
+                background: #4285f4 !important;
+                border-radius: 8px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                color: white !important;
+                font-size: 16px !important;
+                font-weight: bold !important;
+                cursor: pointer !important;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+            `;
+            newContainer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #4285f4; font-weight: bold;">G</span>
+                    </div>
+                    <span>以祭司的身分登入</span>
+                </div>
+            `;
+            
+            // 替換原容器
+            googleContainer.parentNode.replaceChild(newContainer, googleContainer);
+            
+            console.log('✅ 已創建自訂大按鈕');
         }
 
         // 檢查載入畫面狀態
