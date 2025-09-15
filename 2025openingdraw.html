@@ -300,8 +300,12 @@
         }
 
         .hidden {
-            display: none !important;
             opacity: 0;
+            pointer-events: none;
+        }
+        
+        .hidden.hide-completely {
+            display: none !important;
         }
 
         .google-icon {
@@ -430,6 +434,7 @@
         <div style="text-align: center; color: white;">
             <img src="images/logo_1_white.png" alt="福福堂" style="width: 120px; height: 120px; margin-bottom: 20px; animation: pulse 1.5s ease-in-out infinite;">
             <p style="font-size: 18px; margin: 0;">載入中...</p>
+            <p id="loading-progress" style="font-size: 14px; margin: 10px 0 0 0; opacity: 0.8;">(0/7)</p>
         </div>
     </div>
 
@@ -439,7 +444,7 @@
         <p class="lottery-subtitle">福福堂開幕慶祝抽獎活動</p>
         
         <!-- 登入區域 -->
-        <div id="login-section">
+        <div id="login-section" class="hidden">
             <p style="margin-bottom: 20px;">請先登入 Google 帳號參與抽獎</p>
             <!-- Google 登入按鈕將在這裡渲染 -->
             <div id="google-signin-container"></div>
@@ -541,6 +546,7 @@
         
         // DOM 元素
         const loadingScreen = document.getElementById('loading-screen');
+        const loadingProgress = document.getElementById('loading-progress');
         const loginSection = document.getElementById('login-section');
         const loadingSection = document.getElementById('loading-section');
         const userSection = document.getElementById('user-section');
@@ -1036,11 +1042,13 @@
                     animationImages.push(img);
                     completedAssets++;
                     console.log(`✅ 動畫圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
+                    updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
                     completedAssets++;
                     console.warn(`❌ 動畫圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
+                    updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.src = url;
@@ -1053,11 +1061,13 @@
                     prizeImages.push(img);
                     completedAssets++;
                     console.log(`✅ 獎品圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
+                    updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
                     completedAssets++;
                     console.warn(`❌ 獎品圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
+                    updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.src = url;
@@ -1070,26 +1080,40 @@
                     logoLoaded = true;
                     completedAssets++;
                     console.log(`✅ 其他圖片載入完成: ${url} (${completedAssets}/${totalAssets})`);
+                    updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.onerror = () => {
                     logoLoaded = true; // 即使失敗也算完成
                     completedAssets++;
                     console.warn(`❌ 其他圖片載入失敗: ${url} (${completedAssets}/${totalAssets})`);
+                    updateLoadingProgress();
                     checkPreloadComplete();
                 };
                 img.src = url;
             });
         }
 
-        // 檢查預載入是否完成
-        function checkPreloadComplete() {
+        // 更新載入進度顯示
+        function updateLoadingProgress() {
             const totalAssets = 7; // 2個動畫 + 4個獎品 + 1個logo
+            
+            if (loadingProgress) {
+                loadingProgress.textContent = `(${completedAssets}/${totalAssets})`;
+            }
             
             console.log(`預載入進度: ${completedAssets}/${totalAssets}`);
             console.log(`動畫圖片: ${animationImages.length}/2`);
             console.log(`獎品圖片: ${prizeImages.length}/4`);
             console.log(`Logo載入: ${logoLoaded ? '是' : '否'}`);
+        }
+
+        // 檢查預載入是否完成
+        function checkPreloadComplete() {
+            const totalAssets = 7; // 2個動畫 + 4個獎品 + 1個logo
+            
+            // 更新進度顯示
+            updateLoadingProgress();
             
             if (completedAssets >= totalAssets && !preloadComplete) {
                 preloadComplete = true;
@@ -1102,13 +1126,23 @@
         function hideLoadingScreen() {
             console.log('準備隱藏載入畫面...');
             
-            // 立即開始淡出動畫，不等待固定時間
+            if (!loadingScreen) {
+                console.error('找不到載入畫面元素');
+                return;
+            }
+            
+            // 立即開始淡出動畫
             loadingScreen.classList.add('hidden');
             
             // 等待淡出動畫完成後完全隱藏
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
+                loadingScreen.classList.add('hide-completely');
                 console.log('載入畫面已隱藏');
+                
+                // 顯示登入區域
+                if (loginSection) {
+                    loginSection.classList.remove('hidden');
+                }
             }, 500); // 等待CSS淡出動畫完成
         }
         
