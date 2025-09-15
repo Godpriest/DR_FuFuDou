@@ -306,11 +306,49 @@
             min-height: 200px;
         }
 
-        /* Google 登入按鈕樣式調整 */
+        /* Google 登入按鈕樣式調整 - 強力覆蓋 */
+        #google-signin-container {
+            width: 100% !important;
+            max-width: none !important;
+        }
+        
         #google-signin-container iframe {
             width: 90% !important;
             max-width: none !important;
             height: 60px !important;
+            min-width: 300px !important;
+        }
+        
+        /* 強力覆蓋Google內部CSS */
+        #google-signin-container * {
+            width: 100% !important;
+            max-width: none !important;
+        }
+        
+        /* 針對Google登入按鈕的內部元素 */
+        #google-signin-container div[role="button"] {
+            width: 90% !important;
+            max-width: none !important;
+            height: 60px !important;
+        }
+        
+        /* 更強力的Google按鈕寬度覆蓋 */
+        #google-signin-container iframe[src*="accounts.google.com"] {
+            width: 90% !important;
+            min-width: 350px !important;
+            height: 60px !important;
+        }
+        
+        /* 針對Google Identity Services的按鈕 */
+        #google-signin-container > div {
+            width: 90% !important;
+            max-width: none !important;
+        }
+        
+        /* 最終強制覆蓋 */
+        #google-signin-container * {
+            width: 90% !important;
+            max-width: none !important;
         }
 
         /* 確保登入區域正確居中 */
@@ -606,9 +644,9 @@
                 google.accounts.id.renderButton(
                     googleSigninContainer,
                     {
-                        theme: 'outline',
+                        theme: 'filled_blue',
                         size: 'large',
-                        width: '100%',
+                        width: '400',
                         text: 'signin_with',
                         shape: 'rectangular',
                         logo_alignment: 'left'
