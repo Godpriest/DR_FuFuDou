@@ -317,8 +317,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%;
             width: 100%;
+            flex: 1;
         }
 
         /* 抽獎動畫區域 - 全螢幕覆蓋 */
@@ -1408,7 +1408,8 @@
             testImg.style.left = '0';
             testImg.style.width = '100%';
             testImg.style.height = '100%';
-            testImg.style.objectFit = 'contain';
+            testImg.style.objectFit = 'cover';  // 改為cover，讓GIF填滿容器
+            testImg.style.objectPosition = 'center top';  // 對齊到上方
             testImg.style.border = '3px solid #4285f4';
             testImg.style.borderRadius = '10px';
             testImg.style.background = 'rgba(66, 133, 244, 0.1)';
