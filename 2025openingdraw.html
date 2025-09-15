@@ -454,8 +454,14 @@
         <button onclick="checkLoadingScreenStatus()" style="background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🔍 檢查載入畫面
         </button>
-        <button onclick="forceHideLoadingScreen()" style="background: #d63031; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+        <button onclick="forceHideLoadingScreen()" style="background: #d63031; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             🚫 強制隱藏載入畫面
+        </button>
+        <button onclick="checkContainerSize()" style="background: #6c5ce7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+            📏 檢查容器尺寸
+        </button>
+        <button onclick="adjustGoogleButtonSize()" style="background: #00b894; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🔧 調整按鈕大小
         </button>
     </div>
 
@@ -654,6 +660,12 @@
                 );
                 
                 console.log('Google 登入按鈕已初始化');
+                
+                // 等待按鈕完全載入後調整大小
+                setTimeout(() => {
+                    console.log('開始調整Google按鈕大小...');
+                    adjustGoogleButtonSize();
+                }, 1000);
             } else {
                 console.log('等待 Google Identity Services 載入...');
                 setTimeout(initializeGoogleSignIn, 100);
@@ -1188,6 +1200,96 @@
         function isImagePreloaded(src) {
             return animationImages.some(img => img.src.includes(src)) || 
                    prizeImages.some(img => img.src.includes(src));
+        }
+
+        // 檢查方形容器的實際尺寸
+        function checkContainerSize() {
+            const mainContainer = document.querySelector('.main-container');
+            if (!mainContainer) {
+                console.error('找不到主容器！');
+                return;
+            }
+            
+            const rect = mainContainer.getBoundingClientRect();
+            const computedStyle = window.getComputedStyle(mainContainer);
+            
+            console.log('=== 方形容器尺寸檢查 ===');
+            console.log('容器元素:', mainContainer);
+            console.log('實際顯示尺寸:', {
+                width: rect.width,
+                height: rect.height,
+                top: rect.top,
+                left: rect.left
+            });
+            console.log('CSS計算樣式:', {
+                width: computedStyle.width,
+                height: computedStyle.height,
+                maxWidth: computedStyle.maxWidth,
+                maxHeight: computedStyle.maxHeight
+            });
+            console.log('建議按鈕尺寸:', {
+                width: Math.round(rect.width * 0.9) + 'px',
+                height: Math.round(rect.height * 0.15) + 'px'
+            });
+            
+            return {
+                width: rect.width,
+                height: rect.height,
+                suggestedButtonWidth: Math.round(rect.width * 0.9),
+                suggestedButtonHeight: Math.round(rect.height * 0.15)
+            };
+        }
+
+        // 動態調整Google登入按鈕大小
+        function adjustGoogleButtonSize() {
+            const containerSize = checkContainerSize();
+            if (!containerSize) return;
+            
+            const googleContainer = document.getElementById('google-signin-container');
+            if (!googleContainer) {
+                console.error('找不到Google登入容器！');
+                return;
+            }
+            
+            console.log('=== 動態調整Google按鈕大小 ===');
+            console.log('容器尺寸:', containerSize);
+            console.log('建議按鈕尺寸:', {
+                width: containerSize.suggestedButtonWidth + 'px',
+                height: containerSize.suggestedButtonHeight + 'px'
+            });
+            
+            // 強制設定容器和按鈕尺寸
+            googleContainer.style.width = '100%';
+            googleContainer.style.height = containerSize.suggestedButtonHeight + 'px';
+            
+            // 尋找Google按鈕的iframe
+            const googleIframe = googleContainer.querySelector('iframe');
+            if (googleIframe) {
+                googleIframe.style.width = containerSize.suggestedButtonWidth + 'px';
+                googleIframe.style.height = containerSize.suggestedButtonHeight + 'px';
+                googleIframe.style.minWidth = containerSize.suggestedButtonWidth + 'px';
+                googleIframe.style.maxWidth = 'none';
+                console.log('✅ iframe尺寸已調整');
+            }
+            
+            // 尋找Google按鈕的div
+            const googleButton = googleContainer.querySelector('div[role="button"]');
+            if (googleButton) {
+                googleButton.style.width = containerSize.suggestedButtonWidth + 'px';
+                googleButton.style.height = containerSize.suggestedButtonHeight + 'px';
+                googleButton.style.minWidth = containerSize.suggestedButtonWidth + 'px';
+                googleButton.style.maxWidth = 'none';
+                console.log('✅ 按鈕div尺寸已調整');
+            }
+            
+            // 強制所有子元素
+            const allElements = googleContainer.querySelectorAll('*');
+            allElements.forEach(element => {
+                element.style.width = containerSize.suggestedButtonWidth + 'px';
+                element.style.maxWidth = 'none';
+            });
+            
+            console.log('✅ Google按鈕尺寸調整完成');
         }
 
         // 檢查載入畫面狀態
