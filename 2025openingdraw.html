@@ -315,7 +315,7 @@
             align-items: center;
         }
 
-        /* 確保登入區域正確居中 */
+        /* 確保登入區域正確居中 - 相對於主容器定位 */
         #login-section {
             position: absolute;
             top: 50%;
@@ -323,6 +323,7 @@
             transform: translate(-50%, -50%);
             width: auto;
             height: auto;
+            z-index: 10;
         }
 
         /* 抽獎動畫區域 - 全螢幕覆蓋 */
@@ -1166,6 +1167,16 @@
                 if (loginSection) {
                     loginSection.classList.remove('hidden');
                     console.log('登入區域已顯示');
+                    
+                    // 強制重新居中Google按鈕（防止載入畫面隱藏影響定位）
+                    setTimeout(() => {
+                        console.log('重新居中Google按鈕...');
+                        loginSection.style.position = 'absolute';
+                        loginSection.style.top = '50%';
+                        loginSection.style.left = '50%';
+                        loginSection.style.transform = 'translate(-50%, -50%)';
+                        console.log('Google按鈕已重新居中');
+                    }, 100);
                 }
             }, 500); // 等待CSS淡出動畫完成
         }
@@ -1842,6 +1853,19 @@
             console.log('Pathname:', window.location.pathname);
         }
         
+        // 確保Google按鈕始終居中的函數
+        function ensureGoogleButtonCentered() {
+            const loginSection = document.getElementById('login-section');
+            if (loginSection && !loginSection.classList.contains('hidden')) {
+                console.log('確保Google按鈕居中...');
+                loginSection.style.position = 'absolute';
+                loginSection.style.top = '50%';
+                loginSection.style.left = '50%';
+                loginSection.style.transform = 'translate(-50%, -50%)';
+                loginSection.style.zIndex = '10';
+            }
+        }
+
         // 頁面載入完成後初始化
         window.addEventListener('load', function() {
             console.log('頁面載入完成，開始初始化...');
@@ -1863,6 +1887,12 @@
             
             // 開始檢查預載入狀態
             initGoogleSignIn();
+            
+            // 監聽窗口大小變化，確保按鈕始終居中
+            window.addEventListener('resize', ensureGoogleButtonCentered);
+            
+            // 定期檢查並確保按鈕居中（防止其他因素影響）
+            setInterval(ensureGoogleButtonCentered, 2000);
         });
     </script>
 </body>
