@@ -636,10 +636,16 @@
                 
                 console.log('Google 登入按鈕已初始化');
                 
-                // 等待按鈕完全載入後調整大小
+                // 等待按鈕完全載入後調整大小和位置
                 setTimeout(() => {
-                    console.log('開始調整Google按鈕大小...');
+                    console.log('開始調整Google按鈕大小和位置...');
                     adjustGoogleButtonSize();
+                    
+                    // 立即重新居中按鈕（防止Google renderButton影響位置）
+                    setTimeout(() => {
+                        console.log('重新居中Google按鈕（Google渲染後）...');
+                        ensureGoogleButtonCentered();
+                    }, 100);
                 }, 1000);
             } else {
                 console.log('等待 Google Identity Services 載入...');
@@ -1274,6 +1280,12 @@
             
             console.log('✅ Google按鈕尺寸調整完成');
             console.log('使用了3種方法設定尺寸，保持定位不變');
+            
+            // 立即重新居中按鈕（防止尺寸調整影響位置）
+            setTimeout(() => {
+                console.log('重新居中Google按鈕（尺寸調整後）...');
+                ensureGoogleButtonCentered();
+            }, 50);
         }
 
         // 創建自訂Google登入按鈕 - 可正常使用
@@ -1863,7 +1875,33 @@
                 loginSection.style.left = '50%';
                 loginSection.style.transform = 'translate(-50%, -50%)';
                 loginSection.style.zIndex = '10';
+                loginSection.style.width = 'auto';
+                loginSection.style.height = 'auto';
             }
+        }
+
+        // 監聽Google按鈕容器的DOM變化
+        function setupGoogleButtonObserver() {
+            const googleContainer = document.getElementById('google-signin-container');
+            if (!googleContainer) return;
+
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        console.log('Google按鈕容器DOM發生變化，重新居中...');
+                        setTimeout(() => {
+                            ensureGoogleButtonCentered();
+                        }, 100);
+                    }
+                });
+            });
+
+            observer.observe(googleContainer, {
+                childList: true,
+                subtree: true
+            });
+
+            console.log('Google按鈕DOM變化監聽器已設置');
         }
 
         // 頁面載入完成後初始化
@@ -1887,6 +1925,11 @@
             
             // 開始檢查預載入狀態
             initGoogleSignIn();
+            
+            // 設置Google按鈕DOM變化監聽器
+            setTimeout(() => {
+                setupGoogleButtonObserver();
+            }, 500);
             
             // 監聽窗口大小變化，確保按鈕始終居中
             window.addEventListener('resize', ensureGoogleButtonCentered);
