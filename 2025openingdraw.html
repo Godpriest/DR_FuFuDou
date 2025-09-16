@@ -1076,29 +1076,29 @@
                     return;
                 }
                 
-                // 取得用戶的電話號碼（從表單中取得）
+                // 立即更新前端顯示為已兌換狀態
+                updateDisplayAfterRedeem();
+                showMessage('兌換成功！');
+                
+                // 在背景寫入 Google Sheets（不等待結果）
                 const phoneInput = document.getElementById('user-phone');
                 const userPhone = phoneInput ? phoneInput.value : '';
                 
-                console.log('兌換請求參數:', {
-                    userId: currentUser.id,
-                    email: currentUser.email,
-                    phone: userPhone
-                });
+                console.log('背景寫入 Google Sheets...');
                 
-                // 呼叫 Google Apps Script 更新兌換狀態
-                const response = await fetch(`${APPS_SCRIPT_URL}?action=redeemPrize&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(userPhone)}`);
-                const result = await response.json();
-                
-                console.log('兌換回應:', result);
-                
-                if (result.success) {
-                    showMessage('兌換成功！');
-                    // 立即更新顯示，不需要等待
-                    updateDisplayAfterRedeem();
-                } else {
-                    showMessage('兌換失敗：' + result.error);
-                }
+                // 非同步寫入，不等待結果
+                fetch(`${APPS_SCRIPT_URL}?action=redeemPrize&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(userPhone)}`)
+                    .then(response => response.json())
+                    .then(result => {
+                        console.log('背景寫入結果:', result);
+                        if (!result.success) {
+                            console.warn('背景寫入失敗:', result.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('背景寫入時發生錯誤:', error);
+                    });
+                    
             } catch (error) {
                 console.error('兌換時發生錯誤:', error);
                 showMessage('兌換時發生錯誤，請稍後再試');
