@@ -1113,27 +1113,55 @@
             }
         }
         
-        // 立即更新顯示為已兌換狀態（不需要重新呼叫API）
+        // 立即更新顯示為已兌換狀態（直接修改DOM元素，不重新渲染）
         function updateDisplayAfterRedeem() {
             try {
-                // 更新全域的抽獎結果狀態
+                console.log('✅ 直接修改DOM元素為已兌換狀態');
+                
+                // 找到獎品顯示區域
+                const resultDisplay = document.getElementById('prize-result-display');
+                if (!resultDisplay) {
+                    console.log('找不到獎品顯示區域');
+                    return;
+                }
+                
+                // 1. 修改圖片透明度為10%
+                const prizeImage = resultDisplay.querySelector('img');
+                if (prizeImage) {
+                    prizeImage.style.opacity = '0.1';
+                    console.log('✅ 圖片已變淡');
+                }
+                
+                // 2. 修改備用顯示區域的透明度
+                const backupDisplay = resultDisplay.querySelector('div[style*="display: none"]');
+                if (backupDisplay) {
+                    backupDisplay.style.opacity = '0.1';
+                }
+                
+                // 3. 找到並替換按鈕
+                const redeemButton = resultDisplay.querySelector('button[onclick="showRedeemConfirmation()"]');
+                if (redeemButton) {
+                    // 創建新的文字元素
+                    const completedText = document.createElement('div');
+                    completedText.style.cssText = 'position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); color: #666; font-size: 16px; text-align: center;';
+                    completedText.textContent = '兌換完畢，期待您下次的參與!';
+                    
+                    // 替換按鈕
+                    redeemButton.parentNode.replaceChild(completedText, redeemButton);
+                    console.log('✅ 按鈕已替換為兌換完畢文字');
+                }
+                
+            } catch (error) {
+                console.error('直接修改DOM時發生錯誤:', error);
+                // 備用方法：使用原本的重新渲染方式
                 if (window.currentLotteryResult) {
                     window.currentLotteryResult.isRedeemed = true;
-                    console.log('✅ 立即更新為已兌換狀態');
-                    
-                    // 直接更新顯示
                     displayResultInContainer(window.currentLotteryResult);
-                } else {
-                    console.log('找不到當前抽獎結果，使用備用方法');
-                    // 備用方法：重新檢查用戶狀態
-                    checkUserStatusAndUpdateDisplay();
                 }
-            } catch (error) {
-                console.error('更新顯示時發生錯誤:', error);
             }
         }
         
-        // 重新檢查用戶狀態並更新顯示（備用方法）
+        // 後續查詢：根據資料庫狀態生成顯示（用於重新登入或頁面刷新時）
         async function checkUserStatusAndUpdateDisplay() {
             try {
                 if (!currentUser) {
@@ -1145,20 +1173,22 @@
                 const phoneInput = document.getElementById('user-phone');
                 const userPhone = phoneInput ? phoneInput.value : '';
                 
+                console.log('🔍 查詢資料庫狀態...');
+                
                 // 檢查用戶參與狀態
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=checkUser&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(userPhone)}`);
                 const result = await response.json();
                 
-                console.log('重新檢查用戶狀態結果:', result);
+                console.log('資料庫查詢結果:', result);
                 
                 if (result.success && result.hasParticipated && result.alreadyWon) {
-                    // 用戶已抽獎且中獎，更新顯示
+                    // 用戶已抽獎且中獎，根據資料庫狀態生成顯示
                     window.currentLotteryResult = result;
                     displayResultInContainer(result);
-                    console.log('✅ 已更新為兌換後的顯示狀態');
+                    console.log('✅ 根據資料庫狀態生成顯示');
                 }
             } catch (error) {
-                console.error('重新檢查用戶狀態時發生錯誤:', error);
+                console.error('查詢資料庫狀態時發生錯誤:', error);
             }
         }
         
