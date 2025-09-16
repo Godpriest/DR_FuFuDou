@@ -822,9 +822,8 @@
             
             console.log('✅ 抽獎GIF已創建並開始播放');
             
-            // GIF自然播放完畢，不再強制結束
-            // 抽獎結果會在完成後延遲3秒自動顯示
-            console.log('GIF將自然播放完畢，抽獎結果會在完成後自動顯示');
+            // GIF自然播放完畢，獎項會在3秒後自動顯示在下方
+            console.log('GIF將自然播放完畢，獎項會在抽獎完成後3秒顯示在下方');
         }
         
         // 顯示抽獎動畫和結果 - 保留原有函數以備用
@@ -916,7 +915,14 @@
                     }
                 });
                 
-                // 移除結果顯示
+                // 移除獎項顯示
+                const prizeResultDisplay = document.getElementById('prize-result-display');
+                if (prizeResultDisplay && prizeResultDisplay.parentNode) {
+                    prizeResultDisplay.parentNode.removeChild(prizeResultDisplay);
+                    console.log('已移除獎項顯示');
+                }
+                
+                // 也移除舊的結果顯示（以防萬一）
                 const resultDisplay = document.getElementById('container-result-display');
                 if (resultDisplay && resultDisplay.parentNode) {
                     resultDisplay.parentNode.removeChild(resultDisplay);
@@ -935,61 +941,65 @@
             lotteryAnimation.style.display = 'none';
         }
         
-        // 顯示抽獎結果 - 在方框容器內覆蓋顯示
+        // 顯示抽獎結果 - 在GIF下方顯示（低層級）
         function displayResultInContainer(result) {
-            console.log('在方框容器內顯示抽獎結果...');
+            console.log('在GIF下方顯示抽獎結果（低層級）...');
             
-            // 創建結果顯示元素，覆蓋在方框容器內
+            // 創建獎項顯示元素，放在主容器內但層級低於GIF
             const resultDisplay = document.createElement('div');
-            resultDisplay.id = 'container-result-display';
+            resultDisplay.id = 'prize-result-display';
             resultDisplay.style.cssText = `
                 position: absolute;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.85);
-                color: white;
+                background: white;
+                color: #333;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                z-index: 15;
+                z-index: 5;
                 text-align: center;
                 border-radius: 10px;
             `;
             
             if (result.alreadyWon) {
                 resultDisplay.innerHTML = `
-                    <h2 style="color: #ffd700; margin: 0 0 20px 0; font-size: 24px;">🎉 恭喜您！</h2>
-                    <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
-                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                             alt="${result.prize}" 
-                             style="width: 80px; height: 80px; object-fit: contain; margin-right: 20px;"
-                             onerror="this.style.display='none';">
-                        <div style="font-size: 20px; font-weight: bold;">${result.prize}</div>
+                    <h2 style="color: #333; margin: 0 0 30px 0; font-size: 28px; font-weight: bold;">恭喜您抽中</h2>
+                    <div style="background: #4285f4; color: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 300px;">
+                        <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                                 alt="${result.prize}" 
+                                 style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;"
+                                 onerror="this.style.display='none';">
+                            <div style="font-size: 18px; font-weight: bold;">${result.prize}</div>
+                        </div>
                     </div>
-                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">您之前已經中獎了！請聯繫我們領取獎品。</p>
+                    <p style="margin: 20px 0 0 0; color: #666; font-size: 16px;">請聯繫我們領取獎品，祝賀您！</p>
                 `;
             } else {
                 resultDisplay.innerHTML = `
-                    <h2 style="color: #ffd700; margin: 0 0 20px 0; font-size: 24px;">🎉 恭喜您中獎！</h2>
-                    <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
-                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                             alt="${result.prize}" 
-                             style="width: 80px; height: 80px; object-fit: contain; margin-right: 20px;"
-                             onerror="this.style.display='none';">
-                        <div style="font-size: 20px; font-weight: bold;">${result.prize}</div>
+                    <h2 style="color: #333; margin: 0 0 30px 0; font-size: 28px; font-weight: bold;">恭喜您抽中</h2>
+                    <div style="background: #4285f4; color: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 300px;">
+                        <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                                 alt="${result.prize}" 
+                                 style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;"
+                                 onerror="this.style.display='none';">
+                            <div style="font-size: 18px; font-weight: bold;">${result.prize}</div>
+                        </div>
                     </div>
-                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">請聯繫我們領取獎品，祝賀您！</p>
+                    <p style="margin: 20px 0 0 0; color: #666; font-size: 16px;">請聯繫我們領取獎品，祝賀您！</p>
                 `;
             }
             
-            // 添加到主容器內，覆蓋在GIF上方
+            // 添加到主容器內，層級低於GIF
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
                 mainContainer.appendChild(resultDisplay);
-                console.log('✅ 結果已顯示在方框容器內，覆蓋在GIF上方');
+                console.log('✅ 獎項已顯示在GIF下方（低層級）');
             }
         }
         
@@ -1061,9 +1071,12 @@
                 window.currentLotteryResult = lotteryResult;
                 
                 if (lotteryResult.success) {
-                    console.log('抽獎程序完成，立即顯示結果...');
-                    // 抽獎成功後立即顯示結果在方框容器內
-                    displayResultInContainer(lotteryResult);
+                    console.log('抽獎程序完成，3秒後開始顯示結果（在GIF下方）...');
+                    // 抽獎成功後延遲3秒開始顯示結果（在GIF下方，低層級）
+                    setTimeout(() => {
+                        console.log('3秒後開始顯示獎項在GIF下方');
+                        displayResultInContainer(lotteryResult);
+                    }, 3000);
                 } else {
                     // 如果抽獎失敗，立即停止動畫並顯示錯誤
                     console.log('抽獎失敗，立即停止動畫');
