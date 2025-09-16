@@ -92,6 +92,10 @@
         /* 主容器 - 響應式正方形設計 */
         .main-container {
             background: rgba(255, 255, 255, 0.95);
+            background-image: url('images/lottery.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             border-radius: 20px;
             padding: 40px;
             width: 90vw;
@@ -106,6 +110,29 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        /* 主容器底圖層 - 半透明50% */
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/lottery.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.5;
+            z-index: 1;
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        /* 隱藏底圖的類別 */
+        .main-container.hide-background::before {
+            display: none;
         }
 
         /* 桌面版樣式 - 正方形 */
@@ -784,6 +811,12 @@
                 userSection.style.display = 'none';
             }
             
+            // 隱藏主容器底圖
+            let mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                mainContainer.classList.add('hide-background');
+            }
+            
             // 使用簡單測試的成功方法 - 直接在主容器內播放
             const dynamicGif = document.createElement('img');
             dynamicGif.src = animationSrc;  // 立即設定src，加速載入
@@ -800,9 +833,10 @@
             dynamicGif.style.display = 'block';
             dynamicGif.style.opacity = '1';
             dynamicGif.style.boxSizing = 'border-box';
+            dynamicGif.style.pointerEvents = 'none';
             
             // 添加到主容器內，並設置容器為相對定位
-            const mainContainer = document.querySelector('.main-container');
+            mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
                 mainContainer.style.position = 'relative';
                 mainContainer.appendChild(dynamicGif);
@@ -908,6 +942,8 @@
             // 清理主容器中的動態GIF和結果顯示
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
+                // 恢復底圖顯示
+                mainContainer.classList.remove('hide-background');
                 // 移除所有動態創建的img元素
                 const dynamicImages = mainContainer.querySelectorAll('img[src*="lottery-animation"]');
                 dynamicImages.forEach(img => {
@@ -969,7 +1005,7 @@
             
             if (result.alreadyWon) {
                 resultDisplay.innerHTML = `
-                    <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #333; margin: 0; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
+                    <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: auto;">
                         <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
                              alt="${result.prize}" 
@@ -980,7 +1016,7 @@
                 `;
             } else {
                 resultDisplay.innerHTML = `
-                    <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #333; margin: 0; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
+                    <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: auto;">
                         <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
                              alt="${result.prize}" 
