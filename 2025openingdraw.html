@@ -489,10 +489,10 @@
         </div>
         
         <!-- 載入中 -->
-        <div id="loading-section" class="hidden">
-            <div class="loading">
+        <div id="loading-section" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; width: auto; height: auto;">
+            <div class="loading" style="text-align: center; color: white; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px;">
                 <div class="spinner"></div>
-                <p>處理中...</p>
+                <p style="margin: 10px 0 0 0; font-size: 18px;">處理中...</p>
             </div>
         </div>
         
@@ -763,46 +763,52 @@
             }
         }
         
-        // 顯示抽獎動畫和結果 - 使用動態創建方法
+        // 顯示抽獎動畫和結果 - 使用簡單測試的成功方法
         function showLotteryAnimationWithResult(lotteryResult) {
             console.log('開始顯示抽獎動畫...');
             hideAllSections();
-            lotteryAnimation.style.display = 'flex';
             
             // 隨機選擇一個抽獎動畫 GIF (2種動畫)
             const randomAnimation = getRandomAnimationGif();
             console.log('選擇的動畫:', randomAnimation);
             
-            // 隱藏所有預置的動畫元素
-            hideAllAnimationElements();
-            
             // 構建動畫URL
             const animationSrc = randomAnimation === 'lottery-animation-1.gif' 
-                ? 'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif'
-                : 'https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif';
+                ? 'https://i.postimg.cc/N0bm75Zc/lottery-animation-1.gif'
+                : 'https://i.postimg.cc/vmDfhQyx/lottery-animation-2.gif';
             
             console.log('動畫URL:', animationSrc);
             
-            // 使用動態創建方法（和簡單測試一樣的成功方法）
+            // 使用簡單測試的成功方法 - 直接在主容器內播放
             const dynamicGif = document.createElement('img');
+            dynamicGif.src = animationSrc;
             dynamicGif.style.position = 'absolute';
             dynamicGif.style.top = '0';
             dynamicGif.style.left = '0';
-            dynamicGif.style.width = '100vw';
-            dynamicGif.style.height = '100vh';
-            dynamicGif.style.objectFit = 'contain';
-            dynamicGif.style.zIndex = '100';
+            dynamicGif.style.width = '100%';
+            dynamicGif.style.height = '100%';
+            dynamicGif.style.objectFit = 'cover';
+            dynamicGif.style.objectPosition = 'center top';
+            dynamicGif.style.margin = '0 auto';
+            dynamicGif.style.zIndex = '10';
             dynamicGif.style.display = 'block';
             dynamicGif.style.opacity = '1';
             
-            // 添加到動畫容器
-            const animationContainer = document.getElementById('animation-container');
-            animationContainer.appendChild(dynamicGif);
+            // 添加到主容器內，並設置容器為相對定位（和簡單測試一樣）
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                mainContainer.style.position = 'relative';
+                mainContainer.appendChild(dynamicGif);
+                console.log('✅ 抽獎GIF已添加到方形容器內');
+            } else {
+                console.error('❌ 找不到主容器');
+            }
             
             // 載入GIF
             dynamicGif.onload = function() {
                 console.log('✅ 抽獎GIF載入成功！');
                 console.log('尺寸:', this.naturalWidth, 'x', this.naturalHeight);
+                console.log('容器尺寸:', dynamicGif.offsetWidth, 'x', dynamicGif.offsetHeight);
             };
             
             dynamicGif.onerror = function() {
@@ -814,7 +820,6 @@
                 }, 1000);
             };
             
-            dynamicGif.src = animationSrc;
             console.log('動態GIF已創建並開始載入');
             
             // 選擇對應的獎品圖片
@@ -918,6 +923,22 @@
         
         // 隱藏抽獎動畫
         function hideLotteryAnimation() {
+            console.log('隱藏抽獎動畫...');
+            
+            // 清理主容器中的動態GIF
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                // 移除所有動態創建的img元素
+                const dynamicImages = mainContainer.querySelectorAll('img[src*="lottery-animation"]');
+                dynamicImages.forEach(img => {
+                    if (img.parentNode) {
+                        img.parentNode.removeChild(img);
+                        console.log('已移除動態GIF:', img.src);
+                    }
+                });
+            }
+            
+            // 也隱藏原來的動畫容器（以防萬一）
             lotteryAnimation.style.display = 'none';
         }
         
@@ -1068,8 +1089,8 @@
 
             // 3. 最後載入動畫 GIF (只有2個，1920x1080) - 使用PostImages
             const animationUrls = [
-                'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif',
-                'https://i.postimg.cc/1tZg0ZqK/lottery-animation-2.gif'
+                'https://i.postimg.cc/N0bm75Zc/lottery-animation-1.gif',
+                'https://i.postimg.cc/vmDfhQyx/lottery-animation-2.gif'
             ];
             
             let totalAssets = logoUrls.length + prizeUrls.length + animationUrls.length;
@@ -1636,7 +1657,7 @@
             
             // 創建一個新的img元素
             const testImg = document.createElement('img');
-            testImg.src = 'https://i.postimg.cc/j2wK5MxJ/lottery-animation-1.gif';
+            testImg.src = 'https://i.postimg.cc/N0bm75Zc/lottery-animation-1.gif';
             testImg.style.position = 'absolute';
             testImg.style.top = '0';
             testImg.style.left = '0';
