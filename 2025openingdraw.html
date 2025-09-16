@@ -1071,12 +1071,9 @@
                 window.currentLotteryResult = lotteryResult;
                 
                 if (lotteryResult.success) {
-                    console.log('抽獎程序完成，3秒後開始顯示結果（在GIF下方）...');
-                    // 抽獎成功後延遲3秒開始顯示結果（在GIF下方，低層級）
-                    setTimeout(() => {
-                        console.log('3秒後開始顯示獎項在GIF下方');
-                        displayResultInContainer(lotteryResult);
-                    }, 3000);
+                    console.log('抽獎程序完成，立即顯示獎項在GIF下方...');
+                    // 抽獎成功後立即顯示結果（在GIF下方，低層級）
+                    displayResultInContainer(lotteryResult);
                 } else {
                     // 如果抽獎失敗，立即停止動畫並顯示錯誤
                     console.log('抽獎失敗，立即停止動畫');
