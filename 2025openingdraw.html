@@ -967,31 +967,25 @@
             
             if (result.alreadyWon) {
                 resultDisplay.innerHTML = `
-                    <h2 style="color: #333; margin: 0 0 30px 0; font-size: 28px; font-weight: bold;">恭喜您抽中</h2>
-                    <div style="background: #4285f4; color: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 300px;">
-                        <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
-                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                                 alt="${result.prize}" 
-                                 style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;"
-                                 onerror="this.style.display='none';">
-                            <div style="font-size: 18px; font-weight: bold;">${result.prize}</div>
-                        </div>
+                    <h2 style="color: #333; margin: 0 0 20px 0; font-size: 24px; font-weight: bold;">恭喜您抽中</h2>
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
+                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                             alt="${result.prize}" 
+                             style="width: 90%; max-width: 90%; height: auto; object-fit: contain;"
+                             onerror="this.style.display='none';">
                     </div>
-                    <p style="margin: 20px 0 0 0; color: #666; font-size: 16px;">請聯繫我們領取獎品，祝賀您！</p>
+                    <button style="background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px;">現場兌換</button>
                 `;
             } else {
                 resultDisplay.innerHTML = `
-                    <h2 style="color: #333; margin: 0 0 30px 0; font-size: 28px; font-weight: bold;">恭喜您抽中</h2>
-                    <div style="background: #4285f4; color: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 300px;">
-                        <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
-                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                                 alt="${result.prize}" 
-                                 style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;"
-                                 onerror="this.style.display='none';">
-                            <div style="font-size: 18px; font-weight: bold;">${result.prize}</div>
-                        </div>
+                    <h2 style="color: #333; margin: 0 0 20px 0; font-size: 24px; font-weight: bold;">恭喜您抽中</h2>
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
+                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                             alt="${result.prize}" 
+                             style="width: 90%; max-width: 90%; height: auto; object-fit: contain;"
+                             onerror="this.style.display='none';">
                     </div>
-                    <p style="margin: 20px 0 0 0; color: #666; font-size: 16px;">請聯繫我們領取獎品，祝賀您！</p>
+                    <button style="background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px;">現場兌換</button>
                 `;
             }
             
