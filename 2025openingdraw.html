@@ -1094,9 +1094,9 @@
                 
                 if (result.success) {
                     showMessage('兌換成功！');
-                    // 重新載入用戶狀態以更新顯示
+                    // 重新檢查用戶狀態以更新顯示，而不重新載入整個頁面
                     setTimeout(() => {
-                        location.reload();
+                        checkUserStatusAndUpdateDisplay();
                     }, 1500);
                 } else {
                     showMessage('兌換失敗：' + result.error);
@@ -1112,6 +1112,35 @@
             const modal = document.getElementById('redeem-confirmation-modal');
             if (modal) {
                 modal.style.display = 'none';
+            }
+        }
+        
+        // 重新檢查用戶狀態並更新顯示
+        async function checkUserStatusAndUpdateDisplay() {
+            try {
+                if (!currentUser) {
+                    console.log('用戶未登入');
+                    return;
+                }
+                
+                // 取得用戶的電話號碼
+                const phoneInput = document.getElementById('user-phone');
+                const userPhone = phoneInput ? phoneInput.value : '';
+                
+                // 檢查用戶參與狀態
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=checkUser&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(userPhone)}`);
+                const result = await response.json();
+                
+                console.log('重新檢查用戶狀態結果:', result);
+                
+                if (result.success && result.hasParticipated && result.alreadyWon) {
+                    // 用戶已抽獎且中獎，更新顯示
+                    window.currentLotteryResult = result;
+                    displayResultInContainer(result);
+                    console.log('✅ 已更新為兌換後的顯示狀態');
+                }
+            } catch (error) {
+                console.error('重新檢查用戶狀態時發生錯誤:', error);
             }
         }
         
