@@ -491,6 +491,17 @@
         </button>
     </div>
 
+    <!-- 兌換確認對話框 -->
+    <div id="redeem-confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <h3 style="margin: 0 0 20px 0; color: #25486e; font-size: 24px;">請在店內交給工作人員兌換!</h3>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                <button onclick="confirmRedeem()" style="background: #27ae60; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">是</button>
+                <button onclick="cancelRedeem()" style="background: #e74c3c; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">否</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 預載入載入畫面 -->
     <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #25486e; display: flex; align-items: center; justify-content: center; z-index: 10000; transition: opacity 0.5s ease;">
         <div style="text-align: center; color: white;">
@@ -1005,29 +1016,28 @@
                 border-radius: 10px;
             `;
             
-            if (result.alreadyWon) {
-                resultDisplay.innerHTML = `
-                    <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: auto;">
-                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                             alt="${result.prize}" 
-                             style="width: 100%; height: auto; object-fit: contain; filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.4));"
-                             onerror="this.style.display='none';">
+            // 根據是否已兌換決定顯示內容
+            const isRedeemed = result.isRedeemed;
+            const imageOpacity = isRedeemed ? '0.1' : '1';
+            const buttonHtml = isRedeemed 
+                ? '<div style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); color: #666; font-size: 16px; text-align: center;">兌換完畢，期待您下次的參與!</div>'
+                : '<button onclick="showRedeemConfirmation()" style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">現場兌換</button>';
+            
+            resultDisplay.innerHTML = `
+                <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: auto;">
+                    <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                         alt="${result.prize}" 
+                         style="width: 100%; height: auto; object-fit: contain; filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.4)); opacity: ${imageOpacity};"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border: 2px dashed #ddd; opacity: ${imageOpacity};">
+                        <div style="font-size: 48px; margin-bottom: 10px;">🎁</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #25486e;">${result.prize}</div>
+                        <div style="font-size: 14px; color: #666; margin-top: 5px;">獎品圖片載入中...</div>
                     </div>
-                    <button style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">現場兌換</button>
-                `;
-            } else {
-                resultDisplay.innerHTML = `
-                    <h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: auto;">
-                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                             alt="${result.prize}" 
-                             style="width: 100%; height: auto; object-fit: contain; filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.4));"
-                             onerror="this.style.display='none';">
-                    </div>
-                    <button style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">現場兌換</button>
-                `;
-            }
+                </div>
+                ${buttonHtml}
+            `;
             
             // 添加到主容器內，層級低於GIF
             const mainContainer = document.querySelector('.main-container');
@@ -1040,6 +1050,55 @@
         // 保留原來的displayResult函數以備用
         function displayResult(result) {
             displayResultInContainer(result);
+        }
+        
+        // 顯示兌換確認對話框
+        function showRedeemConfirmation() {
+            const modal = document.getElementById('redeem-confirmation-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+        
+        // 確認兌換
+        async function confirmRedeem() {
+            try {
+                // 隱藏對話框
+                const modal = document.getElementById('redeem-confirmation-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+                
+                if (!currentUser) {
+                    showMessage('請先登入');
+                    return;
+                }
+                
+                // 呼叫 Google Apps Script 更新兌換狀態
+                const response = await fetch(`${SCRIPT_URL}?action=redeemPrize&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(currentUser.phone || '')}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('兌換成功！');
+                    // 重新載入用戶狀態以更新顯示
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showMessage('兌換失敗：' + result.error);
+                }
+            } catch (error) {
+                console.error('兌換時發生錯誤:', error);
+                showMessage('兌換時發生錯誤，請稍後再試');
+            }
+        }
+        
+        // 取消兌換
+        function cancelRedeem() {
+            const modal = document.getElementById('redeem-confirmation-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
         
         // 登出
