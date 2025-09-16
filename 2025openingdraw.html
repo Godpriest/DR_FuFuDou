@@ -763,9 +763,9 @@
             }
         }
         
-        // 顯示抽獎動畫和結果 - 使用簡單測試的成功方法
-        function showLotteryAnimationWithResult(lotteryResult) {
-            console.log('開始顯示抽獎動畫...');
+        // 🚀 立即播放抽獎動畫（不等待抽獎結果）
+        function showLotteryAnimationImmediate() {
+            console.log('🚀 立即開始播放抽獎動畫...');
             
             // 隨機選擇一個抽獎動畫 GIF (2種動畫)
             const randomAnimation = getRandomAnimationGif();
@@ -778,10 +778,10 @@
             
             console.log('動畫URL:', animationSrc);
             
-            // 隱藏登入區域（和簡單測試一樣）
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) {
-                loginSection.style.display = 'none';
+            // 隱藏用戶表單區域
+            const userSection = document.getElementById('user-section');
+            if (userSection) {
+                userSection.style.display = 'none';
             }
             
             // 使用簡單測試的成功方法 - 直接在主容器內播放
@@ -799,7 +799,7 @@
             dynamicGif.style.display = 'block';
             dynamicGif.style.opacity = '1';
             
-            // 添加到主容器內，並設置容器為相對定位（和簡單測試一樣）
+            // 添加到主容器內，並設置容器為相對定位
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
                 mainContainer.style.position = 'relative';
@@ -817,19 +817,41 @@
             
             dynamicGif.onerror = function() {
                 console.error('❌ 抽獎GIF載入失敗！');
-                // 立即跳過動畫，不延遲
                 hideLotteryAnimation();
-                displayResult(lotteryResult);
             };
             
             console.log('✅ 抽獎GIF已創建並開始播放');
             
-            // 5秒後直接顯示結果（簡化版本）
+            // 5秒後自動結束動畫並顯示結果
             setTimeout(() => {
-                console.log('5秒：動畫結束，顯示結果');
+                console.log('5秒：動畫結束，檢查抽獎結果...');
                 hideLotteryAnimation();
-                displayResult(lotteryResult);
+                
+                // 檢查是否有抽獎結果
+                if (window.currentLotteryResult && window.currentLotteryResult.success) {
+                    displayResult(window.currentLotteryResult);
+                } else {
+                    console.log('抽獎結果尚未完成，等待中...');
+                    // 如果抽獎結果還沒完成，繼續等待
+                    const checkResult = setInterval(() => {
+                        if (window.currentLotteryResult) {
+                            clearInterval(checkResult);
+                            if (window.currentLotteryResult.success) {
+                                displayResult(window.currentLotteryResult);
+                            } else {
+                                // 顯示錯誤訊息
+                                showMessage(window.currentLotteryResult.error || '抽獎失敗');
+                            }
+                        }
+                    }, 100);
+                }
             }, 5000);
+        }
+        
+        // 顯示抽獎動畫和結果 - 保留原有函數以備用
+        function showLotteryAnimationWithResult(lotteryResult) {
+            console.log('使用舊版動畫函數（備用）...');
+            showLotteryAnimationImmediate();
         }
         
         // 隱藏所有動畫元素
@@ -1011,27 +1033,26 @@
             
             submitButton.disabled = true;
             submitButton.textContent = '抽獎中...';
-            submitButton.className = 'btn btn-google'; // 使用 Google 按鈕樣式表示載入中
+            submitButton.className = 'btn btn-google';
             
+            // 🚀 立即開始播放GIF動畫（不等待抽獎結果）
+            console.log('驗證通過，立即開始播放GIF動畫...');
+            showLotteryAnimationImmediate();
+            
+            // 在背景執行抽獎程序
             try {
-                // 先執行抽獎，取得結果
                 const lotteryResult = await performLottery(currentUser.id, currentUser.email, name, phone);
                 
+                // 保存抽獎結果到全域變數
+                window.currentLotteryResult = lotteryResult;
+                
                 if (lotteryResult.success) {
-                    // 保存抽獎結果到全域變數（供錯誤處理使用）
-                    window.currentLotteryResult = lotteryResult;
-                    
-                    // 根據抽獎結果顯示對應的 GIF 動畫
-                    showLotteryAnimationWithResult(lotteryResult);
-                    
-                    // 等待動畫播放完成（6秒動畫）
-                    await new Promise(resolve => setTimeout(resolve, 6000));
-                    
-                    // 顯示最終結果
-                    hideLotteryAnimation();
-                    displayResult(lotteryResult);
+                    console.log('抽獎程序完成，等待動畫結束...');
+                    // 動畫會在5秒後自動結束並顯示結果
                 } else {
-                    // 恢復按鈕狀態
+                    // 如果抽獎失敗，立即停止動畫並顯示錯誤
+                    console.log('抽獎失敗，立即停止動畫');
+                    hideLotteryAnimation();
                     submitButton.disabled = false;
                     submitButton.textContent = originalButtonText;
                     submitButton.className = originalButtonClass;
@@ -1040,7 +1061,8 @@
                 
             } catch (error) {
                 console.error('抽獎流程錯誤:', error);
-                // 恢復按鈕狀態
+                // 如果抽獎程序出錯，立即停止動畫
+                hideLotteryAnimation();
                 submitButton.disabled = false;
                 submitButton.textContent = originalButtonText;
                 submitButton.className = originalButtonClass;
