@@ -766,7 +766,6 @@
         // 顯示抽獎動畫和結果 - 使用簡單測試的成功方法
         function showLotteryAnimationWithResult(lotteryResult) {
             console.log('開始顯示抽獎動畫...');
-            hideAllSections();
             
             // 隨機選擇一個抽獎動畫 GIF (2種動畫)
             const randomAnimation = getRandomAnimationGif();
@@ -779,9 +778,15 @@
             
             console.log('動畫URL:', animationSrc);
             
+            // 隱藏登入區域（和簡單測試一樣）
+            const loginSection = document.getElementById('login-section');
+            if (loginSection) {
+                loginSection.style.display = 'none';
+            }
+            
             // 使用簡單測試的成功方法 - 直接在主容器內播放
             const dynamicGif = document.createElement('img');
-            dynamicGif.src = animationSrc;
+            dynamicGif.src = animationSrc;  // 立即設定src，加速載入
             dynamicGif.style.position = 'absolute';
             dynamicGif.style.top = '0';
             dynamicGif.style.left = '0';
@@ -804,54 +809,27 @@
                 console.error('❌ 找不到主容器');
             }
             
-            // 載入GIF
+            // 載入GIF - 簡化版本，立即開始播放
             dynamicGif.onload = function() {
                 console.log('✅ 抽獎GIF載入成功！');
                 console.log('尺寸:', this.naturalWidth, 'x', this.naturalHeight);
-                console.log('容器尺寸:', dynamicGif.offsetWidth, 'x', dynamicGif.offsetHeight);
             };
             
             dynamicGif.onerror = function() {
                 console.error('❌ 抽獎GIF載入失敗！');
-                // 如果GIF載入失敗，直接跳過動畫
-                setTimeout(() => {
-                    hideLotteryAnimation();
-                    displayResult(lotteryResult);
-                }, 1000);
-            };
-            
-            console.log('動態GIF已創建並開始載入');
-            
-            // 選擇對應的獎品圖片
-            const prizeImageId = getPrizeImageId(lotteryResult.imageFile);
-            const selectedPrize = document.getElementById(prizeImageId);
-            
-            console.log('選擇的獎品元素:', prizeImageId);
-            
-            // 5秒時切換到獎品顯示
-            setTimeout(() => {
-                console.log('5秒：切換到獎品顯示');
-                
-                // 移除動態GIF
-                if (dynamicGif.parentNode) {
-                    dynamicGif.parentNode.removeChild(dynamicGif);
-                }
-                
-                // 顯示獎品並開始動畫
-                if (selectedPrize) {
-                    selectedPrize.style.display = 'block';
-                    selectedPrize.classList.add('animate');
-                    console.log('獎品動畫開始');
-                } else {
-                    console.warn('找不到獎品圖片元素');
-                }
-            }, 5000);
-            
-            // 6秒後顯示最終結果
-            setTimeout(() => {
+                // 立即跳過動畫，不延遲
                 hideLotteryAnimation();
                 displayResult(lotteryResult);
-            }, 6000);
+            };
+            
+            console.log('✅ 抽獎GIF已創建並開始播放');
+            
+            // 5秒後直接顯示結果（簡化版本）
+            setTimeout(() => {
+                console.log('5秒：動畫結束，顯示結果');
+                hideLotteryAnimation();
+                displayResult(lotteryResult);
+            }, 5000);
         }
         
         // 隱藏所有動畫元素
