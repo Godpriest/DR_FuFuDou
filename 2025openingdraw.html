@@ -822,30 +822,9 @@
             
             console.log('✅ 抽獎GIF已創建並開始播放');
             
-            // 5秒後自動結束動畫並顯示結果
-            setTimeout(() => {
-                console.log('5秒：動畫結束，檢查抽獎結果...');
-                hideLotteryAnimation();
-                
-                // 檢查是否有抽獎結果
-                if (window.currentLotteryResult && window.currentLotteryResult.success) {
-                    displayResult(window.currentLotteryResult);
-                } else {
-                    console.log('抽獎結果尚未完成，等待中...');
-                    // 如果抽獎結果還沒完成，繼續等待
-                    const checkResult = setInterval(() => {
-                        if (window.currentLotteryResult) {
-                            clearInterval(checkResult);
-                            if (window.currentLotteryResult.success) {
-                                displayResult(window.currentLotteryResult);
-                            } else {
-                                // 顯示錯誤訊息
-                                showMessage(window.currentLotteryResult.error || '抽獎失敗');
-                            }
-                        }
-                    }, 100);
-                }
-            }, 5000);
+            // GIF自然播放完畢，不再強制結束
+            // 抽獎結果會在完成後延遲3秒自動顯示
+            console.log('GIF將自然播放完畢，抽獎結果會在完成後自動顯示');
         }
         
         // 顯示抽獎動畫和結果 - 保留原有函數以備用
@@ -925,7 +904,7 @@
         function hideLotteryAnimation() {
             console.log('隱藏抽獎動畫...');
             
-            // 清理主容器中的動態GIF
+            // 清理主容器中的動態GIF和結果顯示
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
                 // 移除所有動態創建的img元素
@@ -936,52 +915,74 @@
                         console.log('已移除動態GIF:', img.src);
                     }
                 });
+                
+                // 移除並行結果顯示
+                const resultDisplay = document.getElementById('parallel-result-display');
+                if (resultDisplay && resultDisplay.parentNode) {
+                    resultDisplay.parentNode.removeChild(resultDisplay);
+                    console.log('已移除並行結果顯示');
+                }
             }
             
             // 也隱藏原來的動畫容器（以防萬一）
             lotteryAnimation.style.display = 'none';
         }
         
-        // 顯示抽獎結果
+        // 顯示抽獎結果 - 並行顯示版本
         function displayResult(result) {
+            console.log('顯示抽獎結果...');
+            
+            // 創建結果顯示元素，放在主容器下方
+            const resultDisplay = document.createElement('div');
+            resultDisplay.id = 'parallel-result-display';
+            resultDisplay.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                margin-top: 20px;
+                z-index: 20;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            `;
+            
             if (result.alreadyWon) {
-                resultContent.innerHTML = `
-                    <h2>🎉 恭喜您！</h2>
-                    <div class="prize-display">
-                        <div class="prize-image">
-                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                                 alt="${result.prize}" 
-                                 style="width: 100%; height: 100%; object-fit: contain;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 40px; color: white; background: rgba(255,255,255,0.2); border-radius: 10px;">
-                                ${result.prize.charAt(0)}
-                            </div>
-                        </div>
-                        <div>${result.prize}</div>
+                resultDisplay.innerHTML = `
+                    <h2 style="color: #ffd700; margin: 0 0 15px 0;">🎉 恭喜您！</h2>
+                    <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                             alt="${result.prize}" 
+                             style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;"
+                             onerror="this.style.display='none';">
+                        <div style="font-size: 18px; font-weight: bold;">${result.prize}</div>
                     </div>
-                    <p>您之前已經中獎了！請聯繫我們領取獎品。</p>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9;">您之前已經中獎了！請聯繫我們領取獎品。</p>
                 `;
             } else {
-                resultContent.innerHTML = `
-                    <h2>🎉 恭喜您中獎！</h2>
-                    <div class="prize-display">
-                        <div class="prize-image">
-                            <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
-                                 alt="${result.prize}" 
-                                 style="width: 100%; height: 100%; object-fit: contain;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 40px; color: white; background: rgba(255,255,255,0.2); border-radius: 10px;">
-                                ${result.prize.charAt(0)}
-                            </div>
-                        </div>
-                        <div>${result.prize}</div>
+                resultDisplay.innerHTML = `
+                    <h2 style="color: #ffd700; margin: 0 0 15px 0;">🎉 恭喜您中獎！</h2>
+                    <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                        <img src="images/prizes/${result.imageFile || 'default_prize.png'}" 
+                             alt="${result.prize}" 
+                             style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;"
+                             onerror="this.style.display='none';">
+                        <div style="font-size: 18px; font-weight: bold;">${result.prize}</div>
                     </div>
-                    <p>請聯繫我們領取獎品，祝賀您！</p>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9;">請聯繫我們領取獎品，祝賀您！</p>
                 `;
             }
             
-            hideAllSections();
-            resultSection.classList.remove('hidden');
+            // 添加到主容器
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                mainContainer.appendChild(resultDisplay);
+                console.log('✅ 結果已顯示在主容器下方');
+            }
         }
         
         // 登出
@@ -1047,8 +1048,12 @@
                 window.currentLotteryResult = lotteryResult;
                 
                 if (lotteryResult.success) {
-                    console.log('抽獎程序完成，等待動畫結束...');
-                    // 動畫會在5秒後自動結束並顯示結果
+                    console.log('抽獎程序完成，3秒後顯示結果...');
+                    // 抽獎成功後延遲3秒顯示結果，讓GIF有時間播放
+                    setTimeout(() => {
+                        console.log('3秒延遲結束，顯示抽獎結果');
+                        displayResult(lotteryResult);
+                    }, 3000);
                 } else {
                     // 如果抽獎失敗，立即停止動畫並顯示錯誤
                     console.log('抽獎失敗，立即停止動畫');
