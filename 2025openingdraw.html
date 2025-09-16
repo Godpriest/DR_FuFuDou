@@ -1076,9 +1076,21 @@
                     return;
                 }
                 
+                // 取得用戶的電話號碼（從表單中取得）
+                const phoneInput = document.getElementById('user-phone');
+                const userPhone = phoneInput ? phoneInput.value : '';
+                
+                console.log('兌換請求參數:', {
+                    userId: currentUser.id,
+                    email: currentUser.email,
+                    phone: userPhone
+                });
+                
                 // 呼叫 Google Apps Script 更新兌換狀態
-                const response = await fetch(`${SCRIPT_URL}?action=redeemPrize&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(currentUser.phone || '')}`);
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=redeemPrize&userId=${currentUser.id}&email=${encodeURIComponent(currentUser.email)}&phone=${encodeURIComponent(userPhone)}`);
                 const result = await response.json();
+                
+                console.log('兌換回應:', result);
                 
                 if (result.success) {
                     showMessage('兌換成功！');
