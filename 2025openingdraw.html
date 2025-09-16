@@ -1094,10 +1094,8 @@
                 
                 if (result.success) {
                     showMessage('兌換成功！');
-                    // 重新檢查用戶狀態以更新顯示，而不重新載入整個頁面
-                    setTimeout(() => {
-                        checkUserStatusAndUpdateDisplay();
-                    }, 1500);
+                    // 立即更新顯示，不需要等待
+                    updateDisplayAfterRedeem();
                 } else {
                     showMessage('兌換失敗：' + result.error);
                 }
@@ -1115,7 +1113,27 @@
             }
         }
         
-        // 重新檢查用戶狀態並更新顯示
+        // 立即更新顯示為已兌換狀態（不需要重新呼叫API）
+        function updateDisplayAfterRedeem() {
+            try {
+                // 更新全域的抽獎結果狀態
+                if (window.currentLotteryResult) {
+                    window.currentLotteryResult.isRedeemed = true;
+                    console.log('✅ 立即更新為已兌換狀態');
+                    
+                    // 直接更新顯示
+                    displayResultInContainer(window.currentLotteryResult);
+                } else {
+                    console.log('找不到當前抽獎結果，使用備用方法');
+                    // 備用方法：重新檢查用戶狀態
+                    checkUserStatusAndUpdateDisplay();
+                }
+            } catch (error) {
+                console.error('更新顯示時發生錯誤:', error);
+            }
+        }
+        
+        // 重新檢查用戶狀態並更新顯示（備用方法）
         async function checkUserStatusAndUpdateDisplay() {
             try {
                 if (!currentUser) {
