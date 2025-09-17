@@ -801,10 +801,10 @@
                         } else if (notification.isSkippedMoment()) {
                             console.log('One Tap 被跳過，原因:', notification.getSkippedReason());
                             showMessage('登入被跳過，請重試');
-                        } else if (notification.isDismissedMoment()) {
-                            console.log('One Tap 被關閉，原因:', notification.getDismissedReason());
-                            showMessage('登入被關閉，請重試');
-                        }
+                    } else if (notification.isDismissedMoment()) {
+                        console.log('One Tap 被關閉，原因:', notification.getDismissedReason());
+                        // 不顯示訊息，讓用戶自然重試
+                    }
                     });
                 } catch (error) {
                     console.error('One Tap 登入失敗:', error);
