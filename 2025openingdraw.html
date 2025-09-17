@@ -180,7 +180,7 @@
                 height: 90vw;
                 max-width: 350px;
                 max-height: 350px;
-                padding: 15px 12px;
+                padding: 12px 10px;
                 margin: 10px auto;
                 position: relative;
                 left: auto;
@@ -188,8 +188,9 @@
                 transform: none;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: flex-start;
                 align-items: center;
+                padding-top: 20px;
             }
         }
 
@@ -217,14 +218,14 @@
             .btn {
                 padding: 10px 16px;
                 font-size: 13px;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
             
             /* 登出按鈕特別縮小 */
             .btn-danger {
                 padding: 8px 12px !important;
                 font-size: 12px !important;
-                margin-bottom: 6px !important;
+                margin-bottom: 4px !important;
             }
         }
 
@@ -302,11 +303,11 @@
         /* 手機版表單調整 */
         @media (max-width: 767px) {
             .form-group {
-                margin-bottom: 12px;
+                margin-bottom: 8px;
             }
             
             .form-group label {
-                margin-bottom: 5px;
+                margin-bottom: 4px;
                 font-size: 13px;
             }
             
@@ -340,16 +341,17 @@
         @media (max-width: 767px) {
             .user-info {
                 padding: 10px;
-                margin-bottom: 12px;
+                margin-bottom: 8px;
+                margin-top: 10px;
             }
             
             .user-info h4 {
-                margin-bottom: 6px;
+                margin-bottom: 4px;
                 font-size: 13px;
             }
             
             .user-info p {
-                margin: 2px 0;
+                margin: 1px 0;
                 font-size: 12px;
             }
         }
@@ -840,38 +842,21 @@
                     callback: handleCredentialResponse
                 });
                 
-                // 使用Google預設設定渲染按鈕，設定寬度為400px
+                // 使用Google預設設定渲染按鈕，設定寬度為280px
                 google.accounts.id.renderButton(
                     googleSigninContainer,
                     {
                         theme: 'filled_blue',
                         size: 'large',
-                        width: 400,
+                        width: 280,
                         text: 'signin_with',
                         shape: 'rectangular',
                         logo_alignment: 'left'
                     }
                 );
                 
-                // 手機版調整 Google 按鈕寬度
-                setTimeout(() => {
-                    const googleButton = googleSigninContainer.querySelector('iframe, div[id*="google"]');
-                    if (googleButton) {
-                        // 添加手機版寬度限制
-                        const style = document.createElement('style');
-                        style.textContent = `
-                            @media (max-width: 767px) {
-                                #google-signin-container iframe,
-                                #google-signin-container div[id*="google"] {
-                                    max-width: 280px !important;
-                                    width: 280px !important;
-                                }
-                            }
-                        `;
-                        document.head.appendChild(style);
-                        console.log('✅ 手機版 Google 按鈕寬度已限制為 280px');
-                    }
-                }, 500);
+                // 統一寬度設定完成，無需額外調整
+                console.log('✅ Google 按鈕寬度已統一設定為 280px');
                 
                 // 檢查原生按鈕是否成功渲染
                 setTimeout(() => {
