@@ -24,6 +24,15 @@
             position: relative;
         }
 
+        /* 手機版 body 調整 */
+        @media (max-width: 767px) {
+            body {
+                padding: 10px;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+        }
+
         /* Logo花紋背景 */
         body::before {
             content: '';
@@ -39,6 +48,14 @@
             transform: rotate(30deg);
             z-index: -1;
             pointer-events: none;
+        }
+
+        /* 手機版背景調整 */
+        @media (max-width: 767px) {
+            body::before {
+                background-size: 80px 80px;
+                opacity: 0.03;
+            }
         }
 
         /* 舊載入畫面CSS已移除 */
@@ -74,17 +91,22 @@
 
         /* 響應式標題 */
         @media (max-width: 767px) {
+            .page-title {
+                margin-bottom: 20px;
+                padding-top: 10px;
+            }
+            
             .page-title .lottery-title {
-                font-size: 36px;
+                font-size: 28px;
             }
             
             .title-with-logos {
-                gap: 15px;
+                gap: 10px;
             }
             
             .title-logo {
-                width: 80px;
-                height: 80px;
+                width: 60px;
+                height: 60px;
                 filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.7));
             }
         }
@@ -144,11 +166,12 @@
         /* 手機版樣式 - 正方形 */
         @media (max-width: 767px) {
             .main-container {
-                width: 85vw;
-                height: 85vw;
-                max-width: 400px;
-                max-height: 400px;
-                padding: 30px 20px;
+                width: 90vw;
+                height: 90vw;
+                max-width: 350px;
+                max-height: 350px;
+                padding: 20px 15px;
+                margin: 10px 0;
             }
         }
 
@@ -169,6 +192,15 @@
             display: inline-block;
             position: relative;
             z-index: 2;
+        }
+
+        /* 手機版按鈕調整 */
+        @media (max-width: 767px) {
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
         }
 
         .btn:hover {
@@ -242,6 +274,23 @@
             border-color: #4285f4;
         }
 
+        /* 手機版表單調整 */
+        @media (max-width: 767px) {
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                margin-bottom: 6px;
+                font-size: 14px;
+            }
+            
+            .form-group input {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
         .user-info {
             background: #f8f9fa;
             padding: 15px;
@@ -260,6 +309,24 @@
         .user-info p {
             margin: 5px 0;
             color: #666;
+        }
+
+        /* 手機版用戶資訊調整 */
+        @media (max-width: 767px) {
+            .user-info {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .user-info h4 {
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+            
+            .user-info p {
+                margin: 3px 0;
+                font-size: 13px;
+            }
         }
 
         .prize-display {
@@ -286,6 +353,22 @@
             justify-content: center;
             font-size: 40px;
             animation: bounce 0.6s ease-in-out;
+        }
+
+        /* 手機版獎品顯示調整 */
+        @media (max-width: 767px) {
+            .prize-display {
+                padding: 15px;
+                font-size: 18px;
+                margin: 15px 0;
+            }
+            
+            .prize-image {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 10px;
+                font-size: 30px;
+            }
         }
 
         @keyframes bounce {
@@ -475,9 +558,14 @@
         /* 響應式備用按鈕 */
         @media (max-width: 767px) {
             #google-onetap-button {
-                width: 180px !important;
-                max-width: 200px !important;
-                font-size: 13px !important;
+                width: 160px !important;
+                height: 35px !important;
+                font-size: 12px !important;
+            }
+            
+            #google-onetap-container p {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
             }
         }
         
