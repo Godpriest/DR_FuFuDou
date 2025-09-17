@@ -480,11 +480,42 @@
                 font-size: 13px !important;
             }
         }
+        
+        /* 懸浮回到首頁按鈕樣式 */
+        #back-to-index-btn:hover {
+            background: rgba(255, 255, 255, 1) !important;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+        }
+        
+        #back-to-index-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 響應式懸浮按鈕 */
+        @media (max-width: 767px) {
+            #back-to-index-btn {
+                width: 50px !important;
+                height: 50px !important;
+                bottom: 15px !important;
+                left: 15px !important;
+            }
+            
+            #back-to-index-btn img {
+                width: 32px !important;
+                height: 32px !important;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- 舊載入畫面 - 已移除 -->
 
+
+    <!-- 懸浮回到首頁按鈕 -->
+    <div id="back-to-index-btn" onclick="goToIndex()" style="position: fixed; bottom: 20px; left: 20px; width: 60px; height: 60px; background: rgba(255, 255, 255, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 9999; transition: all 0.3s ease;">
+        <img src="images/back_index.png" alt="回到首頁" style="width: 40px; height: 40px; object-fit: contain;">
+    </div>
 
     <!-- 兌換確認對話框 -->
     <div id="redeem-confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
@@ -776,10 +807,12 @@
                             tryPopupLogin();
                         } else if (notification.isSkippedMoment()) {
                             console.log('One Tap 被跳過，原因:', notification.getSkippedReason());
-                            showMessage('登入被取消，請重試');
+                            // 被跳過通常是因為用戶已經登入過，直接嘗試 popup
+                            tryPopupLogin();
                         } else if (notification.isDismissedMoment()) {
                             console.log('One Tap 被關閉，原因:', notification.getDismissedReason());
-                            showMessage('登入被關閉，請重試');
+                            // 被關閉不代表登入失敗，可能是用戶選擇其他方式，嘗試 popup
+                            tryPopupLogin();
                         }
                     });
                 } catch (error) {
@@ -797,6 +830,9 @@
         function tryPopupLogin() {
             console.log('嘗試使用 Popup 登入...');
             
+            // 顯示友善的提示訊息
+            showMessage('正在開啟登入視窗，請稍候...', 'success');
+            
             try {
                 // 使用 Google OAuth2 popup 登入
                 const client = google.accounts.oauth2.initCodeClient({
@@ -805,7 +841,7 @@
                     callback: handleOAuth2Response,
                     error_callback: (error) => {
                         console.error('Popup 登入錯誤:', error);
-                        showMessage('登入失敗，請檢查網路連線或稍後再試');
+                        showMessage('登入視窗被阻止，請允許彈出視窗後重試');
                     }
                 });
                 
@@ -845,6 +881,19 @@
                     console.error('取得用戶資訊失敗:', error);
                     showMessage('登入成功但無法取得用戶資訊，請重試');
                 });
+        }
+        
+        // 回到首頁功能
+        function goToIndex() {
+            console.log('回到首頁');
+            
+            // 確認是否要離開抽獎頁面
+            const confirmLeave = confirm('確定要回到首頁嗎？');
+            
+            if (confirmLeave) {
+                // 回到首頁
+                window.location.href = 'index.html';
+            }
         }
         
         // 顯示載入狀態
