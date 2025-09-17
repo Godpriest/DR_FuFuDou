@@ -102,21 +102,21 @@
         /* 響應式標題 */
         @media (max-width: 767px) {
             .page-title {
-                margin-bottom: 20px;
-                padding-top: 10px;
+                margin-bottom: 15px;
+                padding-top: 5px;
             }
             
             .page-title .lottery-title {
-                font-size: 28px;
+                font-size: 24px;
             }
             
             .title-with-logos {
-                gap: 10px;
+                gap: 8px;
             }
             
             .title-logo {
-                width: 60px;
-                height: 60px;
+                width: 50px;
+                height: 50px;
                 filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.7));
             }
         }
@@ -180,12 +180,16 @@
                 height: 90vw;
                 max-width: 350px;
                 max-height: 350px;
-                padding: 20px 15px;
+                padding: 15px 12px;
                 margin: 10px auto;
                 position: relative;
                 left: auto;
                 top: auto;
                 transform: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
             }
         }
 
@@ -211,9 +215,16 @@
         /* 手機版按鈕調整 */
         @media (max-width: 767px) {
             .btn {
-                padding: 12px 20px;
-                font-size: 14px;
-                margin-bottom: 10px;
+                padding: 10px 16px;
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+            
+            /* 登出按鈕特別縮小 */
+            .btn-danger {
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+                margin-bottom: 6px !important;
             }
         }
 
@@ -291,17 +302,17 @@
         /* 手機版表單調整 */
         @media (max-width: 767px) {
             .form-group {
-                margin-bottom: 15px;
+                margin-bottom: 12px;
             }
             
             .form-group label {
-                margin-bottom: 6px;
-                font-size: 14px;
+                margin-bottom: 5px;
+                font-size: 13px;
             }
             
             .form-group input {
-                padding: 10px;
-                font-size: 14px;
+                padding: 8px;
+                font-size: 13px;
             }
         }
 
@@ -328,18 +339,18 @@
         /* 手機版用戶資訊調整 */
         @media (max-width: 767px) {
             .user-info {
-                padding: 12px;
-                margin-bottom: 15px;
+                padding: 10px;
+                margin-bottom: 12px;
             }
             
             .user-info h4 {
-                margin-bottom: 8px;
-                font-size: 14px;
+                margin-bottom: 6px;
+                font-size: 13px;
             }
             
             .user-info p {
-                margin: 3px 0;
-                font-size: 13px;
+                margin: 2px 0;
+                font-size: 12px;
             }
         }
 
@@ -1263,13 +1274,13 @@
             const isRedeemed = result.isRedeemed;
             const imageOpacity = isRedeemed ? '0.1' : '1';
             const buttonHtml = isRedeemed 
-                ? '<div style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); color: #333; font-size: 16px; font-weight: bold; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">兌換完畢，期待您下次的參與!</div>'
-                : '<button onclick="showRedeemConfirmation()" style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">現場兌換</button>';
+                ? '<div style="position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); color: #333; font-size: 16px; font-weight: bold; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">兌換完畢，期待您下次的參與!</div>'
+                : '<button onclick="showRedeemConfirmation()" style="position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">現場兌換</button>';
             
             // 根據是否已兌換決定是否顯示「恭喜您抽中」標題
             const titleHtml = isRedeemed 
                 ? '' 
-                : '<h2 style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>';
+                : '<h2 style="position: absolute; top: 15%; left: 50%; transform: translateX(-50%); color: #25486e; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">恭喜您抽中</h2>';
             
             resultDisplay.innerHTML = `
                 ${titleHtml}
