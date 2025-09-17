@@ -758,13 +758,22 @@
             
             if (typeof google !== 'undefined' && google.accounts) {
                 try {
+                    // 重新初始化 Google 登入以確保 One Tap 正常工作
+                    google.accounts.id.initialize({
+                        client_id: GOOGLE_CLIENT_ID,
+                        callback: handleCredentialResponse,
+                        auto_select: false,
+                        cancel_on_tap_outside: false
+                    });
+                    
                     // 嘗試使用 One Tap 登入
                     google.accounts.id.prompt((notification) => {
                         console.log('One Tap 通知:', notification);
                         
                         if (notification.isNotDisplayed()) {
                             console.log('One Tap 無法顯示，原因:', notification.getNotDisplayedReason());
-                            showMessage('此瀏覽器不支援 Google 登入，請使用其他瀏覽器或嘗試重新整理頁面');
+                            // 如果 One Tap 無法顯示，嘗試使用 popup 方式
+                            tryPopupLogin();
                         } else if (notification.isSkippedMoment()) {
                             console.log('One Tap 被跳過，原因:', notification.getSkippedReason());
                             showMessage('登入被取消，請重試');
@@ -775,12 +784,67 @@
                     });
                 } catch (error) {
                     console.error('One Tap 登入失敗:', error);
-                    showMessage('登入失敗，請檢查網路連線或稍後再試');
+                    // 如果 One Tap 失敗，嘗試使用 popup 方式
+                    tryPopupLogin();
                 }
             } else {
                 console.error('Google Identity Services 未載入');
                 showMessage('Google 服務未載入，請重新整理頁面');
             }
+        }
+        
+        // 嘗試使用 Popup 登入作為備用方案
+        function tryPopupLogin() {
+            console.log('嘗試使用 Popup 登入...');
+            
+            try {
+                // 使用 Google OAuth2 popup 登入
+                const client = google.accounts.oauth2.initCodeClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'email profile openid',
+                    callback: handleOAuth2Response,
+                    error_callback: (error) => {
+                        console.error('Popup 登入錯誤:', error);
+                        showMessage('登入失敗，請檢查網路連線或稍後再試');
+                    }
+                });
+                
+                client.requestCode();
+            } catch (error) {
+                console.error('Popup 登入初始化失敗:', error);
+                showMessage('登入服務暫時無法使用，請稍後再試');
+            }
+        }
+        
+        // 處理 OAuth2 回應
+        function handleOAuth2Response(response) {
+            console.log('OAuth2 登入成功:', response);
+            
+            // 使用 Google API 取得用戶資訊
+            fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${response.access_token}`)
+                .then(response => response.json())
+                .then(userInfo => {
+                    console.log('用戶資訊:', userInfo);
+                    
+                    // 創建與原生登入相同的用戶物件格式
+                    currentUser = {
+                        id: userInfo.id,
+                        email: userInfo.email,
+                        name: userInfo.name,
+                        picture: userInfo.picture
+                    };
+                    
+                    console.log('OAuth2 登入處理完成，用戶資訊:', currentUser);
+                    
+                    // 更新 UI（與原生登入相同的流程）
+                    displayUserInfo(currentUser);
+                    checkUserStatus();
+                    
+                })
+                .catch(error => {
+                    console.error('取得用戶資訊失敗:', error);
+                    showMessage('登入成功但無法取得用戶資訊，請重試');
+                });
         }
         
         // 顯示載入狀態
