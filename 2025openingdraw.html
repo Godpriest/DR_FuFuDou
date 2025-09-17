@@ -457,39 +457,6 @@
 <body>
     <!-- 舊載入畫面 - 已移除 -->
 
-    <!-- 測試按鈕 -->
-    <div style="position: fixed; top: 20px; left: 20px; z-index: 10000;">
-        <button onclick="testGifAnimation()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🎬 測試GIF動畫
-        </button>
-        <button onclick="testGifVisibility()" style="background: #4ecdc4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            👁️ 檢查可見性
-        </button>
-        <button onclick="simpleGifTest()" style="background: #45b7d1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🔥 簡單測試
-        </button>
-        <button onclick="checkImagePaths()" style="background: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🔍 檢查路徑
-        </button>
-        <button onclick="checkFileSizes()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            📏 檢查檔案大小
-        </button>
-        <button onclick="testExternalImages()" style="background: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🌐 外部圖片測試
-        </button>
-        <button onclick="checkLoadingScreenStatus()" style="background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🔍 檢查載入畫面
-        </button>
-        <button onclick="forceHideLoadingScreen()" style="background: #d63031; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            🚫 強制隱藏載入畫面
-        </button>
-        <button onclick="checkContainerSize()" style="background: #6c5ce7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            📏 檢查容器尺寸
-        </button>
-        <button onclick="createCustomGoogleButton()" style="background: #e17055; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
-            🎨 自訂按鈕
-        </button>
-    </div>
 
     <!-- 兌換確認對話框 -->
     <div id="redeem-confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
@@ -1081,9 +1048,8 @@
                     return;
                 }
                 
-                // 立即更新前端顯示為已兌換狀態
-                updateDisplayAfterRedeem();
-                showMessage('兌換成功！');
+                // 顯示「處理中...」讀取畫面
+                showRedeemLoading();
                 
                 // 在背景寫入 Google Sheets（不等待結果）
                 const phoneInput = document.getElementById('user-phone');
@@ -1103,6 +1069,12 @@
                     .catch(error => {
                         console.error('背景寫入時發生錯誤:', error);
                     });
+                
+                // 3秒後更新前端顯示為已兌換狀態
+                setTimeout(() => {
+                    hideRedeemLoading();
+                    updateDisplayAfterRedeem();
+                }, 3000);
                     
             } catch (error) {
                 console.error('兌換時發生錯誤:', error);
@@ -1115,6 +1087,24 @@
             const modal = document.getElementById('redeem-confirmation-modal');
             if (modal) {
                 modal.style.display = 'none';
+            }
+        }
+        
+        // 顯示兌換處理中的讀取畫面
+        function showRedeemLoading() {
+            const loadingSection = document.getElementById('loading-section');
+            if (loadingSection) {
+                loadingSection.classList.remove('hidden');
+                console.log('✅ 顯示兌換處理中讀取畫面');
+            }
+        }
+        
+        // 隱藏兌換處理中的讀取畫面
+        function hideRedeemLoading() {
+            const loadingSection = document.getElementById('loading-section');
+            if (loadingSection) {
+                loadingSection.classList.add('hidden');
+                console.log('✅ 隱藏兌換處理中讀取畫面');
             }
         }
         
@@ -1743,374 +1733,12 @@
             console.log('naturalHeight:', element.naturalHeight);
         }
 
-        // 測試GIF動畫函數
-        function testGifAnimation() {
-            console.log('=== 開始測試GIF動畫 ===');
-            
-            // 顯示動畫測試
-            hideAllSections();
-            lotteryAnimation.style.display = 'flex';
-            
-            // 隨機選擇一個動畫
-            const randomAnimation = getRandomAnimationGif();
-            console.log('測試選擇的動畫:', randomAnimation);
-            
-            // 隱藏所有動畫元素
-            hideAllAnimationElements();
-            
-            // 選擇要播放的GIF
-            const selectedGifId = randomAnimation === 'lottery-animation-1.gif' ? 'gif-animation-1' : 'gif-animation-2';
-            const selectedGif = document.getElementById(selectedGifId);
-            
-            console.log('測試選擇的GIF元素:', selectedGifId);
-            
-            // 檢查動畫容器
-            checkElementVisibility(animationContainer, '動畫容器');
-            
-            // 顯示載入指示器
-            const loadingIndicator = document.getElementById('loading-indicator');
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'block';
-                checkElementVisibility(loadingIndicator, '載入指示器');
-            }
-            
-            // 立即顯示選中的GIF
-            if (selectedGif) {
-                selectedGif.style.display = 'block';
-                selectedGif.style.opacity = '1';
-                
-                // 檢查顯示前的狀態
-                console.log('顯示前檢查:');
-                checkElementVisibility(selectedGif, 'GIF顯示前');
-                
-                console.log('測試GIF開始播放:', selectedGif.src);
-                
-                // 檢查顯示後的狀態
-                setTimeout(() => {
-                    console.log('顯示後檢查:');
-                    checkElementVisibility(selectedGif, 'GIF顯示後');
-                }, 100);
-                
-                // 隱藏載入指示器
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-            }
-            
-            // 10秒後關閉測試
-            setTimeout(() => {
-                if (selectedGif) {
-                    selectedGif.style.display = 'none';
-                    selectedGif.style.opacity = '0';
-                }
-                lotteryAnimation.style.display = 'none';
-                console.log('測試動畫結束');
-            }, 10000);
-        }
-
-        // 簡單可見性測試函數
-        function testGifVisibility() {
-            console.log('=== 簡單可見性測試 ===');
-            
-            // 檢查動畫容器
-            console.log('動畫容器存在:', !!animationContainer);
-            console.log('動畫容器顯示:', lotteryAnimation.style.display);
-            
-            // 檢查GIF元素
-            const gif1 = document.getElementById('gif-animation-1');
-            const gif2 = document.getElementById('gif-animation-2');
-            
-            console.log('GIF1存在:', !!gif1);
-            console.log('GIF2存在:', !!gif2);
-            
-            if (gif1) {
-                console.log('GIF1 src:', gif1.src);
-                console.log('GIF1 display:', gif1.style.display);
-                console.log('GIF1 opacity:', gif1.style.opacity);
-                console.log('GIF1 尺寸:', gif1.offsetWidth, 'x', gif1.offsetHeight);
-            }
-            
-            if (gif2) {
-                console.log('GIF2 src:', gif2.src);
-                console.log('GIF2 display:', gif2.style.display);
-                console.log('GIF2 opacity:', gif2.style.opacity);
-                console.log('GIF2 尺寸:', gif2.offsetWidth, 'x', gif2.offsetHeight);
-            }
-            
-            // 強制顯示第一個GIF 5秒
-            if (gif1) {
-                console.log('強制顯示GIF1 5秒...');
-                
-                // 顯示動畫容器
-                lotteryAnimation.style.display = 'flex';
-                
-                // 隱藏所有其他GIF
-                if (gif2) {
-                    gif2.style.display = 'none';
-                    gif2.style.opacity = '0';
-                }
-                
-                // 顯示GIF1，只改變display和opacity
-                gif1.style.display = 'block';
-                gif1.style.opacity = '1';
-                
-                console.log('GIF1顯示設定完成');
-                
-                setTimeout(() => {
-                    gif1.style.display = 'none';
-                    gif1.style.opacity = '0';
-                    lotteryAnimation.style.display = 'none';
-                    console.log('測試結束');
-                }, 5000);
-            }
-        }
 
 
-        // 最簡單的GIF測試 - 在方形容器內播放
-        function simpleGifTest() {
-            console.log('=== 方形容器內GIF測試 ===');
-            
-            // 隱藏登入區域
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) {
-                loginSection.style.display = 'none';
-            }
-            
-            // 創建一個新的img元素
-            const testImg = document.createElement('img');
-            testImg.src = 'https://i.postimg.cc/N0bm75Zc/lottery-animation-1.gif';
-            testImg.style.position = 'absolute';
-            testImg.style.top = '0';
-            testImg.style.left = '0';
-            testImg.style.width = '100%';
-            testImg.style.height = '100%';
-            testImg.style.objectFit = 'cover';  // 改為cover，讓GIF填滿容器
-            testImg.style.objectPosition = 'center top';  // 對齊到上方，水平居中
-            testImg.style.margin = '0 auto';  // 強制水平居中
-            testImg.style.border = '3px solid #4285f4';
-            testImg.style.borderRadius = '10px';
-            testImg.style.background = 'rgba(66, 133, 244, 0.1)';
-            testImg.style.zIndex = '10';
-            
-            testImg.onload = function() {
-                console.log('✅ GIF在方形容器內載入成功！');
-                console.log('GIF原始尺寸:', this.naturalWidth, 'x', this.naturalHeight);
-                console.log('容器尺寸:', testImg.offsetWidth, 'x', testImg.offsetHeight);
-                
-                // 檢查容器和GIF的位置
-                const containerRect = mainContainer.getBoundingClientRect();
-                const gifRect = testImg.getBoundingClientRect();
-                console.log('容器位置:', containerRect);
-                console.log('GIF位置:', gifRect);
-                console.log('GIF是否水平居中:', Math.abs(gifRect.left - containerRect.left) < 5);
-            };
-            
-            testImg.onerror = function() {
-                console.error('❌ GIF載入失敗！');
-            };
-            
-            // 添加到主容器內，並設置容器為相對定位
-            const mainContainer = document.querySelector('.main-container');
-            if (mainContainer) {
-                // 設置容器為相對定位，確保絕對定位的GIF在容器內
-                mainContainer.style.position = 'relative';
-                mainContainer.appendChild(testImg);
-                console.log('✅ GIF已添加到方形容器內');
-                console.log('容器位置:', mainContainer.getBoundingClientRect());
-                console.log('GIF位置:', testImg.getBoundingClientRect());
-            } else {
-                console.error('❌ 找不到主容器');
-                document.body.appendChild(testImg);
-            }
-            
-            // 5秒後移除並恢復登入按鈕
-            setTimeout(() => {
-                if (testImg.parentNode) {
-                    testImg.parentNode.removeChild(testImg);
-                    console.log('✅ 測試GIF已移除');
-                }
-                
-                // 恢復顯示登入區域
-                if (loginSection) {
-                    loginSection.style.display = 'flex';
-                }
-                console.log('✅ 登入按鈕已恢復顯示');
-            }, 5000);
-        }
 
-        // 檢查圖片路徑和載入狀態
-        function checkImagePaths() {
-            console.log('=== 檢查圖片路徑 ===');
-            
-            const imageUrls = [
-                'images/animations/lottery-animation-1.gif',
-                'images/animations/lottery-animation-2.gif',
-                'images/prizes/fishball.png',
-                'images/prizes/hot_soup.png',
-                'images/prizes/tea_jelly.png',
-                'images/prizes/shaved_ice.png',
-                'images/logo_1_white.png'
-            ];
-            
-            let loadedCount = 0;
-            let totalCount = imageUrls.length;
-            
-            imageUrls.forEach((url, index) => {
-                const testImg = new Image();
-                
-                testImg.onload = function() {
-                    loadedCount++;
-                    console.log(`✅ ${url} - 載入成功 (${loadedCount}/${totalCount})`);
-                    
-                    if (loadedCount === totalCount) {
-                        console.log('🎉 所有圖片載入完成！');
-                    }
-                };
-                
-                testImg.onerror = function() {
-                    loadedCount++;
-                    console.error(`❌ ${url} - 載入失敗 (${loadedCount}/${totalCount})`);
-                    console.error('可能的問題:');
-                    console.error('1. 檔案路徑錯誤');
-                    console.error('2. 檔案不存在');
-                    console.error('3. 伺服器設定問題');
-                    console.error('4. CORS 問題');
-                    
-                    if (loadedCount === totalCount) {
-                        console.log('❌ 部分圖片載入失敗！');
-                    }
-                };
-                
-                testImg.src = url;
-            });
-            
-            // 檢查當前頁面URL
-            console.log('當前頁面URL:', window.location.href);
-            console.log('基礎URL:', window.location.origin + window.location.pathname);
-        }
 
-        // 檢查檔案大小和GitHub限制
-        async function checkFileSizes() {
-            console.log('=== 檢查檔案大小和GitHub限制 ===');
-            
-            const imageUrls = [
-                'images/animations/lottery-animation-1.gif',
-                'images/animations/lottery-animation-2.gif',
-                'images/prizes/fishball.png',
-                'images/prizes/hot_soup.png',
-                'images/prizes/tea_jelly.png',
-                'images/prizes/shaved_ice.png',
-                'images/logo_1_white.png'
-            ];
-            
-            console.log('GitHub Pages 限制:');
-            console.log('- 單一檔案大小限制: 100MB (但建議 < 25MB)');
-            console.log('- 倉庫總大小限制: 1GB');
-            console.log('- 頻寬限制: 100GB/月');
-            console.log('- 建置時間限制: 10分鐘');
-            console.log('');
-            
-            for (const url of imageUrls) {
-                try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    
-                    if (response.ok) {
-                        const contentLength = response.headers.get('content-length');
-                        const contentType = response.headers.get('content-type');
-                        
-                        if (contentLength) {
-                            const sizeInMB = (parseInt(contentLength) / 1024 / 1024).toFixed(2);
-                            const sizeInKB = (parseInt(contentLength) / 1024).toFixed(2);
-                            
-                            console.log(`✅ ${url}`);
-                            console.log(`   大小: ${sizeInMB} MB (${sizeInKB} KB)`);
-                            console.log(`   類型: ${contentType}`);
-                            
-                            if (parseInt(contentLength) > 25 * 1024 * 1024) {
-                                console.warn(`   ⚠️  檔案過大！建議壓縮`);
-                            }
-                        } else {
-                            console.log(`✅ ${url} - 載入成功但無法取得大小`);
-                        }
-                    } else {
-                        console.error(`❌ ${url} - HTTP ${response.status}: ${response.statusText}`);
-                        
-                        if (response.status === 413) {
-                            console.error('   💥 檔案太大！');
-                        } else if (response.status === 404) {
-                            console.error('   📁 檔案不存在！');
-                        } else if (response.status === 403) {
-                            console.error('   🚫 存取被拒絕！');
-                        }
-                    }
-                } catch (error) {
-                    console.error(`❌ ${url} - 網路錯誤:`, error.message);
-                }
-            }
-            
-            // 檢查GitHub倉庫狀態
-            console.log('');
-            console.log('=== GitHub 倉庫檢查 ===');
-            console.log('倉庫URL:', window.location.origin);
-            console.log('分支:', window.location.pathname.includes('/gh-pages') ? 'gh-pages' : 'main');
-        }
 
-        // 測試外部圖片託管服務
-        function testExternalImages() {
-            console.log('=== 外部圖片託管測試 ===');
-            
-            // 使用一些免費的圖片託管服務進行測試
-            const testImages = [
-                {
-                    name: 'GitHub Raw',
-                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery-animation-1.gif'
-                },
-                {
-                    name: 'GitHub Raw (備用)',
-                    url: 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/gh-pages/images/animations/lottery-animation-1.gif'
-                },
-                {
-                    name: 'Imgur (示例)',
-                    url: 'https://i.imgur.com/example.gif'
-                }
-            ];
-            
-            console.log('測試外部圖片託管服務...');
-            console.log('');
-            console.log('建議的替代方案:');
-            console.log('1. GitHub Raw: https://raw.githubusercontent.com/用戶名/倉庫名/分支名/路徑');
-            console.log('2. Imgur: https://imgur.com/ (免費，支援大檔案)');
-            console.log('3. Cloudinary: https://cloudinary.com/ (免費額度)');
-            console.log('4. ImageBB: https://imgbb.com/ (免費)');
-            console.log('5. PostImages: https://postimages.org/ (免費)');
-            console.log('');
-            
-            // 測試GitHub Raw URL
-            const githubRawUrl = 'https://raw.githubusercontent.com/godpriest/DR-FuFuDou/main/images/animations/lottery-animation-1.gif';
-            console.log('測試GitHub Raw URL:', githubRawUrl);
-            
-            const testImg = new Image();
-            testImg.onload = function() {
-                console.log('✅ GitHub Raw 載入成功！');
-                console.log('建議: 使用 GitHub Raw URL 替代相對路徑');
-                console.log('格式: https://raw.githubusercontent.com/用戶名/倉庫名/分支名/路徑');
-            };
-            testImg.onerror = function() {
-                console.error('❌ GitHub Raw 載入失敗');
-                console.log('可能原因:');
-                console.log('1. 檔案不存在於main分支');
-                console.log('2. 檔案路徑錯誤');
-                console.log('3. 倉庫名稱錯誤');
-            };
-            testImg.src = githubRawUrl;
-            
-            // 顯示當前頁面資訊
-            console.log('');
-            console.log('當前頁面資訊:');
-            console.log('URL:', window.location.href);
-            console.log('Origin:', window.location.origin);
-            console.log('Pathname:', window.location.pathname);
-        }
+
         
         // 移除所有會修改Google按鈕位置的函數
 
