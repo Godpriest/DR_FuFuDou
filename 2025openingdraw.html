@@ -29,7 +29,17 @@
             body {
                 padding: 10px;
                 min-height: 100vh;
-                overflow-x: hidden;
+                max-height: 100vh;
+                overflow: hidden;
+                position: fixed;
+                width: 100vw;
+                height: 100vh;
+                left: 0;
+                top: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
             }
         }
 
@@ -171,7 +181,11 @@
                 max-width: 350px;
                 max-height: 350px;
                 padding: 20px 15px;
-                margin: 10px 0;
+                margin: 10px auto;
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
             }
         }
 
@@ -827,6 +841,26 @@
                         logo_alignment: 'left'
                     }
                 );
+                
+                // 手機版調整 Google 按鈕寬度
+                setTimeout(() => {
+                    const googleButton = googleSigninContainer.querySelector('iframe, div[id*="google"]');
+                    if (googleButton) {
+                        // 添加手機版寬度限制
+                        const style = document.createElement('style');
+                        style.textContent = `
+                            @media (max-width: 767px) {
+                                #google-signin-container iframe,
+                                #google-signin-container div[id*="google"] {
+                                    max-width: 280px !important;
+                                    width: 280px !important;
+                                }
+                            }
+                        `;
+                        document.head.appendChild(style);
+                        console.log('✅ 手機版 Google 按鈕寬度已限制為 280px');
+                    }
+                }, 500);
                 
                 // 檢查原生按鈕是否成功渲染
                 setTimeout(() => {
