@@ -483,7 +483,6 @@
         
         /* 懸浮回到首頁按鈕樣式 */
         #back-to-index-btn:hover {
-            background: rgba(255, 255, 255, 1) !important;
             transform: scale(1.1);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
         }
@@ -495,15 +494,10 @@
         /* 響應式懸浮按鈕 */
         @media (max-width: 767px) {
             #back-to-index-btn {
-                width: 50px !important;
-                height: 50px !important;
+                width: 60px !important;
+                height: 60px !important;
                 bottom: 15px !important;
                 left: 15px !important;
-            }
-            
-            #back-to-index-btn img {
-                width: 32px !important;
-                height: 32px !important;
             }
         }
     </style>
@@ -513,8 +507,8 @@
 
 
     <!-- 懸浮回到首頁按鈕 -->
-    <div id="back-to-index-btn" onclick="goToIndex()" style="position: fixed; bottom: 20px; left: 20px; width: 60px; height: 60px; background: rgba(255, 255, 255, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 9999; transition: all 0.3s ease;">
-        <img src="images/back_index.png" alt="回到首頁" style="width: 40px; height: 40px; object-fit: contain;">
+    <div id="back-to-index-btn" onclick="goToIndex()" style="position: fixed; bottom: 20px; left: 20px; width: 80px; height: 80px; background: transparent; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 9999; transition: all 0.3s ease;">
+        <img src="images/back_index.png" alt="回到首頁" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
     </div>
 
     <!-- 兌換確認對話框 -->
@@ -803,84 +797,23 @@
                         
                         if (notification.isNotDisplayed()) {
                             console.log('One Tap 無法顯示，原因:', notification.getNotDisplayedReason());
-                            // 如果 One Tap 無法顯示，嘗試使用 popup 方式
-                            tryPopupLogin();
+                            showMessage('此瀏覽器不支援 Google One Tap 登入');
                         } else if (notification.isSkippedMoment()) {
                             console.log('One Tap 被跳過，原因:', notification.getSkippedReason());
-                            // 被跳過通常是因為用戶已經登入過，直接嘗試 popup
-                            tryPopupLogin();
+                            showMessage('登入被跳過，請重試');
                         } else if (notification.isDismissedMoment()) {
                             console.log('One Tap 被關閉，原因:', notification.getDismissedReason());
-                            // 被關閉不代表登入失敗，可能是用戶選擇其他方式，嘗試 popup
-                            tryPopupLogin();
+                            showMessage('登入被關閉，請重試');
                         }
                     });
                 } catch (error) {
                     console.error('One Tap 登入失敗:', error);
-                    // 如果 One Tap 失敗，嘗試使用 popup 方式
-                    tryPopupLogin();
+                    showMessage('One Tap 登入失敗，請重試');
                 }
             } else {
                 console.error('Google Identity Services 未載入');
                 showMessage('Google 服務未載入，請重新整理頁面');
             }
-        }
-        
-        // 嘗試使用 Popup 登入作為備用方案
-        function tryPopupLogin() {
-            console.log('嘗試使用 Popup 登入...');
-            
-            // 顯示友善的提示訊息
-            showMessage('正在開啟登入視窗，請稍候...', 'success');
-            
-            try {
-                // 使用 Google OAuth2 popup 登入
-                const client = google.accounts.oauth2.initCodeClient({
-                    client_id: GOOGLE_CLIENT_ID,
-                    scope: 'email profile openid',
-                    callback: handleOAuth2Response,
-                    error_callback: (error) => {
-                        console.error('Popup 登入錯誤:', error);
-                        showMessage('登入視窗被阻止，請允許彈出視窗後重試');
-                    }
-                });
-                
-                client.requestCode();
-            } catch (error) {
-                console.error('Popup 登入初始化失敗:', error);
-                showMessage('登入服務暫時無法使用，請稍後再試');
-            }
-        }
-        
-        // 處理 OAuth2 回應
-        function handleOAuth2Response(response) {
-            console.log('OAuth2 登入成功:', response);
-            
-            // 使用 Google API 取得用戶資訊
-            fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${response.access_token}`)
-                .then(response => response.json())
-                .then(userInfo => {
-                    console.log('用戶資訊:', userInfo);
-                    
-                    // 創建與原生登入相同的用戶物件格式
-                    currentUser = {
-                        id: userInfo.id,
-                        email: userInfo.email,
-                        name: userInfo.name,
-                        picture: userInfo.picture
-                    };
-                    
-                    console.log('OAuth2 登入處理完成，用戶資訊:', currentUser);
-                    
-                    // 更新 UI（與原生登入相同的流程）
-                    displayUserInfo(currentUser);
-                    checkUserStatus();
-                    
-                })
-                .catch(error => {
-                    console.error('取得用戶資訊失敗:', error);
-                    showMessage('登入成功但無法取得用戶資訊，請重試');
-                });
         }
         
         // 回到首頁功能
